@@ -1,42 +1,65 @@
-# Basic arcade program using objects
-# Displays a white window with a blue circle in the middle
-
-# Imports
 import arcade
+import numpy as np
+from PIL import Image
 
-# Constants
-SCREEN_WIDTH = 600
-SCREEN_HEIGHT = 800
-SCREEN_TITLE = "Welcome to Arcade"
-RADIUS = 150
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+SCREEN_TITLE = "Covid Simulation"
 
-# Classes
-class Welcome(arcade.Window):
-    """Main welcome window
+
+class GUI(arcade.Window):
     """
-    def __init__(self):
-        """Initialize the window
+    Main application class.
+    """
+
+    def __init__(self, width, height, title, path):
         """
+        Set up the application.
+        """
+        self.map = self._convert_to_binary_map(path)
+        self.x_size = len(self.map)
+        self.y_size = len(self.map[0])
+        super().__init__(self.y_size, self.x_size, title)  # chwilowo rozmiary mapki wejsciowej, trzeba przeskalowac
 
-        # Call the parent class constructor
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-
-        # Set the background window
-        arcade.set_background_color(arcade.color.WHITE)
+        # Set the window's background color
+        self.background_color = arcade.color.BLACK
+        # Create a spritelist for batch drawing all the grid sprites
+        self.grid_sprite_list = arcade.SpriteList()
+        self.initialize_grid()
 
     def on_draw(self):
-        """Called whenever you need to draw your window
         """
+        Render the screen.
+        """
+        # We should always start by clearing the window pixels
+        self.clear()
 
-        # Clear the screen and start drawing
-        arcade.start_render()
+        # Batch draw all the sprites
+        self.grid_sprite_list.draw()
 
-        # Draw a blue circle
-        arcade.draw_circle_filled(
-            SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, RADIUS, arcade.color.BLUE
-        )
+    def initialize_grid(self):
+        # Create a list of solid-color sprites to represent each grid location
+        for row in range(self.x_size):
+            for column in range(self.y_size):
+                if self.map[row, column] == 255:
+                    sprite = arcade.SpriteSolidColor(1, 1, arcade.color.WHITE)
+                else:
+                    sprite = arcade.SpriteSolidColor(1, 1, arcade.color.RED)
+                sprite.center_x = column
+                sprite.center_y = self.x_size - row
+                self.grid_sprite_list.append(sprite)
 
-# Main code entry point
-if __name__ == "__main__":
-    app = Welcome()
+    @staticmethod
+    def _convert_to_binary_map(path):
+        img = Image.open(path)
+        img = img.convert("L")
+        return np.array(img)
+
+
+def main():
+    GUI(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, "../data/map.png")
     arcade.run()
+
+
+if __name__ == "__main__":
+    main()
