@@ -16,6 +16,8 @@ class GUI(arcade.Window):
         """
         Set up the application.
         """
+        #TODO zapisac mapke, bedzie sie szybciej uruchamiac
+
         self.map = self._convert_to_binary_map(path)
         self.x_size = len(self.map)
         self.y_size = len(self.map[0])
@@ -44,7 +46,8 @@ class GUI(arcade.Window):
                 if self.map[row, column] == 255:
                     sprite = arcade.SpriteSolidColor(1, 1, arcade.color.WHITE)
                 else:
-                    sprite = arcade.SpriteSolidColor(1, 1, arcade.color.RED)
+                    sprite = arcade.SpriteSolidColor(1, 1, (self.map[row, column],0,0))
+
                 sprite.center_x = column
                 sprite.center_y = self.x_size - row
                 self.grid_sprite_list.append(sprite)
