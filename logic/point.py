@@ -1,7 +1,6 @@
 from random import choices, shuffle
 from math import ceil, floor
 
-
 class Point:
     def __init__(self, init_N: int, province: str):  # TODO province should be enum I think
         self._N = init_N
