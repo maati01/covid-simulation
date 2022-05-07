@@ -1,27 +1,24 @@
-from time import sleep
-
 import arcade
 import numpy as np
-from PIL import Image
-
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Covid Simulation"
 TEXT_PADDING = 50
 
-#TODO uzyc center_window()
+
+# TODO uzyc center_window()
 class GUI(arcade.Window):
     """
     Main application class.
     """
 
-    def __init__(self, path):
+    def __init__(self, path: str):
         """
         Set up the application.
         """
         # TODO zapisac mapke, bedzie sie szybciej uruchamiac
 
-        self.map = self._convert_to_binary_map(path)
+        self.map = np.load(path)
         self.x_size = len(self.map)
         self.y_size = len(self.map[0])
         super().__init__(self.y_size, self.x_size + 100,
@@ -36,11 +33,14 @@ class GUI(arcade.Window):
         self.initialize_grid()
         arcade.schedule(self.update_day, 1)
 
-    def update_day(self, delta_time):
+    def update_day(self, delta_time: float) -> None:
+        """
+        Update days.
+        """
         self.day += 1
         self.text = f"Day: {self.day}"
 
-    def on_draw(self):
+    def on_draw(self) -> None:
         """
         Render the screen.
         """
@@ -54,7 +54,7 @@ class GUI(arcade.Window):
         arcade.draw_text(self.text, TEXT_PADDING, self.x_size + TEXT_PADDING,
                          arcade.color.BLACK, 40, 80, 'left')
 
-    def initialize_grid(self):
+    def initialize_grid(self) -> None:
         # Create a list of solid-color sprites to represent each grid location
         for row in range(self.x_size):
             for column in range(self.y_size):
@@ -66,9 +66,3 @@ class GUI(arcade.Window):
                 sprite.center_x = column
                 sprite.center_y = self.x_size - row
                 self.grid_sprite_list.append(sprite)
-
-    @staticmethod
-    def _convert_to_binary_map(path):
-        img = Image.open(path)
-        img = img.convert("L")
-        return np.array(img)
