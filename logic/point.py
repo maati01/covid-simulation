@@ -13,10 +13,7 @@ class Point:
         self.neighbours = list()
         self.move_probability = 0.5
         self.neighbours_move_probability = 0.7
-        self.S_moved = 0
-        self.E_moved = 0
-        self.I_moved = 0
-        self.R_moved = 0
+        self.arrived_infected = 0
 
     @property
     def N(self):
