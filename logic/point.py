@@ -1,11 +1,11 @@
-from random import choices, shuffle
-from math import ceil, floor
+from SEIR import GenericModel
 
 
 class Point:
-    def __init__(self, init_N: int, province: str):  # TODO province should be enum I think
+    def __init__(self, init_N: int, province: str, model: GenericModel):  # TODO province should be enum I think
         self._N = init_N
         self._province = province
+        self._model = model(self)
         self._S = init_N
         self._E = 0
         self._I = 0
@@ -57,28 +57,4 @@ class Point:
 
     def simulate(self):
         """Simulate next day"""
-        pass
-
-    def get_moving_I_people(self):
-        """getting number of moving infected people"""
-        people_to_move = round(self.N * self.move_probability)
-        to_neighbours = round(people_to_move * self.neighbours_move_probability)
-
-        moving_states = choices(['S', 'E', 'I', 'R'], [val / self.N for val in [self.S, self.E, self.I, self.R]],
-                                k=people_to_move)
-
-        shuffle(moving_states)
-        moving_states_to_neighbours = moving_states[:to_neighbours]
-        moving_states_out_neighbours = moving_states[to_neighbours:]
-
-        infected_to_neighbours = moving_states_to_neighbours.count('I')
-        infected_out_neighbours = moving_states_out_neighbours.count('I')
-
-        if infected_out_neighbours + infected_to_neighbours > self.I:
-            difference = infected_out_neighbours + infected_to_neighbours - self.I
-            half_of_difference = difference / 2
-
-            infected_out_neighbours -= ceil(half_of_difference)
-            infected_to_neighbours -= floor(half_of_difference)
-
-        return infected_to_neighbours, infected_out_neighbours
+        self._model.simulate()
