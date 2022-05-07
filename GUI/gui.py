@@ -12,7 +12,7 @@ class GUI(arcade.Window):
     Main application class.
     """
 
-    def __init__(self, width, height, title, path):
+    def __init__(self, path):
         """
         Set up the application.
         """
@@ -21,7 +21,7 @@ class GUI(arcade.Window):
         self.map = self._convert_to_binary_map(path)
         self.x_size = len(self.map)
         self.y_size = len(self.map[0])
-        super().__init__(self.y_size, self.x_size, title)  # chwilowo rozmiary mapki wejsciowej, trzeba przeskalowac
+        super().__init__(self.y_size, self.x_size, SCREEN_TITLE)  # chwilowo rozmiary mapki wejsciowej, trzeba przeskalowac
 
         # Set the window's background color
         self.background_color = arcade.color.BLACK
@@ -57,12 +57,3 @@ class GUI(arcade.Window):
         img = Image.open(path)
         img = img.convert("L")
         return np.array(img)
-
-
-def main():
-    GUI(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, "../data/map.png")
-    arcade.run()
-
-
-if __name__ == "__main__":
-    main()
