@@ -7,7 +7,7 @@ beta = 0.45
 sigma = 0.1
 gamma = 0.1
 
-
+# http://web.pdx.edu/~gjay/teaching/mth271_2020/html/09_SEIR_model.html
 class GenericModel(ABC):
     def __init__(self, point: Point):
         self._point = point
@@ -27,8 +27,8 @@ class SEIR(GenericModel):
 
         new_s = self._point.S - beta * i * s
         new_e = self._point.E + (beta * i * s - sigma * e)
-        new_i = sigma * e - gamma * i
-        new_r = gamma * i
+        new_i = self._point.I + sigma * e - gamma * i
+        new_r = self._point.R + gamma * i
 
         if new_i < self._point.arrived_infected:
             diff = self._point.arrived_infected - new_i
