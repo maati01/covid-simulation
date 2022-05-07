@@ -1,6 +1,4 @@
-import arcade
-from GUI.gui import GUI
+from engine import Engine
 
 if __name__ == "__main__":
-    GUI("data/map.png")
-    arcade.run()
+    engine = Engine()
