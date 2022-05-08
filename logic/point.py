@@ -1,7 +1,7 @@
 from SEIR import GenericModel
 
 class Point:
-    def __init__(self, init_N: int, province: str, model: GenericModel):  # TODO province should be enum I think
+    def __init__(self, init_N: int, model: GenericModel, province: str = None):  # TODO province should be enum I think
         self._N = init_N
         self._province = province
         self._model = model(self)
@@ -53,6 +53,10 @@ class Point:
     @R.setter
     def R(self, value):
         self._R = value
+
+    @property
+    def model(self):
+        return self._model
 
     def simulate(self):
         """Simulate next day"""
