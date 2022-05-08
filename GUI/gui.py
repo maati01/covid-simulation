@@ -35,16 +35,6 @@ class GUI(arcade.Window):
 
         self.initialize_grid()
         arcade.schedule(self.update_day, 1)
-        arcade.schedule(self.update_color, 1)
-
-
-    def update_color(self, delta_time: float):
-        self.clear()
-        for i in range(100):
-            for j in range(100):
-                # self.grid_sprites[250+i][300+j].color = arcade.color.GREEN\
-                self.grid_sprites[250 + i][300 + j].color = arcade.color.GREEN
-
 
     def update_day(self, delta_time: float) -> None:
         """
@@ -73,10 +63,9 @@ class GUI(arcade.Window):
         for row in range(self.x_size):
             self.grid_sprites.append([])
             for column in range(self.y_size):
-                if self.map[row, column] == 255:
-                    sprite = arcade.SpriteSolidColor(1, 1, arcade.color.WHITE)
-                else:
-                    sprite = arcade.SpriteSolidColor(1, 1, (self.map[row, column],0,0))
+                sprite = arcade.SpriteSolidColor(1, 1, arcade.color.WHITE)
+                if self.map[row, column] != 255:
+                    sprite.color = (self.map[row, column], 0, 0)
 
                 sprite.center_x = column
                 sprite.center_y = self.x_size - row
@@ -87,11 +76,10 @@ class GUI(arcade.Window):
         """
         Called when the user presses a mouse button.
         """
-
-        if self.grid_sprites[self.x_size-int(y)][int(x)].color == arcade.color.GREEN:
+        if self.grid_sprites[self.x_size - int(y)][int(x)].color == arcade.color.GREEN:
             color = arcade.color.YELLOW
         else:
             color = arcade.color.GREEN
         for i in range(100):
             for j in range(100):
-                self.grid_sprites[self.x_size-int(y)+i][int(x)+j].color = color
+                self.grid_sprites[self.x_size - int(y) + i][int(x) + j].color = color

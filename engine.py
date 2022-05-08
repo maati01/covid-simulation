@@ -11,4 +11,7 @@ class Engine:
     def __init__(self):
         self.is_running = True
         self.gui = GUI(PATH_TO_BINARY_ARRAY)
+        #TODO macierz pointow
+        #TODO initial chorzy
+        #TODO run and check
         arcade.run()
