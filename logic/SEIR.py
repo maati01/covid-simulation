@@ -42,9 +42,10 @@ class SEIR(GenericModel):
         people_to_move = round(self._point.N * self._point.move_probability)
         to_neighbours = round(people_to_move * self._point.neighbours_move_probability)
 
+        #TODO wyjebac tego maxa XDD
         moving_states = choices(
             ['S', 'E', 'I', 'R'],
-            [val / self._point.N for val in [self._point.S, self._point.E, self._point.I, self._point.R]],
+            [val / max(self._point.N, 1) for val in [self._point.S, self._point.E, self._point.I, self._point.R]],
             k=people_to_move
         )
 

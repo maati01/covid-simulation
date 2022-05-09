@@ -1,5 +1,8 @@
 import arcade
 import numpy as np
+from typing import List
+from logic.point import Point
+from random import randint
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -13,7 +16,7 @@ class GUI(arcade.Window):
     Main application class.
     """
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, points_matrix: List[List[Point]]):
         """
         Set up the application.
         """
@@ -24,6 +27,7 @@ class GUI(arcade.Window):
         super().__init__(self.y_size, self.x_size + 100,
                          SCREEN_TITLE)  # chwilowo rozmiary mapki wejsciowej, trzeba przeskalowac
 
+        self.points_matrix = points_matrix
         self.day = 0
         self.text = f"Day: {self.day}"
         # Set the window's background color
@@ -35,6 +39,7 @@ class GUI(arcade.Window):
 
         self.initialize_grid()
         arcade.schedule(self.update_day, 1)
+        arcade.schedule(self.simulate, 5)
 
     def update_day(self, delta_time: float) -> None:
         """
@@ -42,6 +47,25 @@ class GUI(arcade.Window):
         """
         self.day += 1
         self.text = f"Day: {self.day}"
+
+    def simulate(self, delta_time: float):
+        for i in range(self.x_size):
+            for j in range(self.y_size):
+                if self.points_matrix[i][j] is not None:
+
+                    infected_to_neighbours, infected_out_neighbours = self.points_matrix[i][j].model.get_moving_I_people()
+                    sum_ = infected_to_neighbours + infected_out_neighbours
+                    x, y = randint(100,500), randint(100, 500)
+                    while self.points_matrix[x][y] is None:
+                        x, y = randint(100, 500), randint(100, 500)
+                    self.points_matrix[x][y].arrived_infected = sum_
+
+        for i in range(self.x_size):
+            for j in range(self.y_size):
+                if self.points_matrix[i][j] is not None:
+                    self.points_matrix[i][j].simulate()
+
+
 
     def on_draw(self) -> None:
         """
@@ -56,6 +80,11 @@ class GUI(arcade.Window):
         self.grid_sprite_list.draw()
         arcade.draw_text(self.text, TEXT_PADDING, self.x_size + TEXT_PADDING,
                          arcade.color.BLACK, 40, 80, 'left')
+
+        for i in range(self.x_size):
+            for j in range(self.y_size):
+                if self.points_matrix[i][j] is not None and self.points_matrix[i][j].I > 0:
+                    self.grid_sprites[i][j].color = arcade.color.GOLD
 
     def initialize_grid(self) -> None:
         # Create a list of solid-color sprites to represent each grid location
@@ -76,10 +105,12 @@ class GUI(arcade.Window):
         """
         Called when the user presses a mouse button.
         """
-        if self.grid_sprites[self.x_size - int(y)][int(x)].color == arcade.color.GREEN:
-            color = arcade.color.YELLOW
-        else:
-            color = arcade.color.GREEN
-        for i in range(100):
-            for j in range(100):
+
+        color = arcade.color.GREEN
+
+        for i in range(10):
+            for j in range(10):
                 self.grid_sprites[self.x_size - int(y) + i][int(x) + j].color = color
+                self.points_matrix[self.x_size - int(y) + i][int(x) + j].I = \
+                self.points_matrix[self.x_size - int(y) + i][int(x) + j].N
+                self.points_matrix[self.x_size - int(y) + i][int(x) + j].N = 0

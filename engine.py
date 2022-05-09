@@ -9,9 +9,9 @@ PATH_TO_POPULATION_ARRAY = "data/population_array.npy"
 class Engine:
     def __init__(self):
         self.is_running = True
-        self.gui = GUI(PATH_TO_BINARY_ARRAY)
-        self.points_matrix = self._create_matrix_of_points()
 
+        self.points_matrix = self._create_matrix_of_points()
+        self.gui = GUI(PATH_TO_BINARY_ARRAY, self.points_matrix)
         #TODO macierz pointow
         #TODO initial chorzy
         #TODO run and check
