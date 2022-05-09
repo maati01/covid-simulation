@@ -51,7 +51,7 @@ class GUI(arcade.Window):
     def simulate(self, delta_time: float):
         for i in range(self.x_size):
             for j in range(self.y_size):
-                if self.points_matrix[i][j] is not None:
+                if self.points_matrix[i][j] is not None and self.points_matrix[i][j].N > 0: #TODO nie powinno byc chyba tego > 0
 
                     infected_to_neighbours, infected_out_neighbours = self.points_matrix[i][j].model.get_moving_I_people()
                     sum_ = infected_to_neighbours + infected_out_neighbours
@@ -62,7 +62,7 @@ class GUI(arcade.Window):
 
         for i in range(self.x_size):
             for j in range(self.y_size):
-                if self.points_matrix[i][j] is not None:
+                if self.points_matrix[i][j] is not None and self.points_matrix[i][j].N > 0: #TODO nie powinno byc chyba tego > 0
                     self.points_matrix[i][j].simulate()
 
 
