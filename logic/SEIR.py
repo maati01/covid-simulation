@@ -1,4 +1,4 @@
-from point import Point
+from logic.point import Point
 from abc import ABC, abstractmethod
 from random import choices, shuffle
 from math import ceil, floor
