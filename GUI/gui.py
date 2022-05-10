@@ -1,4 +1,7 @@
+from math import inf
+
 import arcade
+import arcade.gui
 import numpy as np
 from typing import List
 from logic.point import Point
@@ -29,6 +32,20 @@ class GUI(arcade.Window):
         super().__init__(self.y_size, self.x_size + 100,
                          SCREEN_TITLE)  # chwilowo rozmiary mapki wejsciowej, trzeba przeskalowac
 
+        # Creating a UI MANAGER to handle the UI
+        self.uimanager = arcade.gui.UIManager()
+        self.uimanager.enable()
+
+        # Creating Button using UIFlatButton
+        self.start_button = arcade.gui.UIFlatButton(text="Start", width=200)
+
+        # Assigning our on_buttonclick() function
+        self.is_running = False
+        self.start_button.on_click = self.on_button_click
+
+        # Adding button in our uimanager
+        self.uimanager.add(arcade.gui.UIAnchorWidget(anchor_x="left", anchor_y="bottom", child=self.start_button))
+
         self.points = points
         self.all_cords = list(points.keys())
 
@@ -54,6 +71,9 @@ class GUI(arcade.Window):
         self.text = f"Day: {self.day}"
 
     def simulate(self, delta_time: float):
+        if not self.is_running:
+            return
+
         n = len(self.all_cords)
         threads_point_len = round(n / self._threads_num)
         from_to = [(0 + i * threads_point_len, threads_point_len + i * threads_point_len) for i in
@@ -81,10 +101,10 @@ class GUI(arcade.Window):
         """
         Render the screen.
         """
-        # arcade.start_render()
+        arcade.start_render()
 
         # We should always start by clearing the window pixels
-        self.clear()
+        # self.clear()
 
         for point in self.points.values():
             prev_color = self.grid_sprites[point.x][point.y].color
@@ -95,8 +115,12 @@ class GUI(arcade.Window):
 
         # Batch draw all the sprites
         self.grid_sprite_list.draw()
+
+        self.uimanager.draw()
+
         arcade.draw_text(self.text, TEXT_PADDING, self.x_size + TEXT_PADDING,
                          arcade.color.BLACK, 40, 80, 'left')
+
 
     def initialize_grid(self) -> None:
         # Create a list of solid-color sprites to represent each grid location
@@ -112,6 +136,8 @@ class GUI(arcade.Window):
                 self.grid_sprite_list.append(sprite)
                 self.grid_sprites[row].append(sprite)
 
+
+
     def on_mouse_press(self, x, y, button, modifiers):
         """
         Called when the user presses a mouse button.
@@ -125,3 +151,15 @@ class GUI(arcade.Window):
                 self.points[(self.x_size - int(y) + i, int(x) + j)].I = \
                     self.points[(self.x_size - int(y) + i, int(x) + j)].N
                 self.points[(self.x_size - int(y) + i, int(x) + j)].S = 0
+
+    def on_button_click(self, event):
+        """
+        This function will be called everytime the user presses the button
+        """
+
+        if self.is_running:
+            self.start_button.text = "Start"
+            self.is_running = False
+        else:
+            self.start_button.text = "Stop"
+            self.is_running = True
