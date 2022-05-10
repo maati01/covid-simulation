@@ -3,7 +3,7 @@ import numpy as np
 from typing import List
 from logic.point import Point
 from random import randint
-import dill
+from logic.threads import SimulateThread
 import weakref
 from copy import deepcopy
 
@@ -19,11 +19,10 @@ class GUI(arcade.Window):
     Main application class.
     """
 
-    def __init__(self, path: str, points: dict[tuple[int, int], Point]):
+    def __init__(self, path: str, points: dict[tuple[int, int], Point], threads_num=8):
         """
         Set up the application.
         """
-
         self.map = np.load(path)
         self.x_size = len(self.map)
         self.y_size = len(self.map[0])
@@ -31,6 +30,8 @@ class GUI(arcade.Window):
                          SCREEN_TITLE)  # chwilowo rozmiary mapki wejsciowej, trzeba przeskalowac
 
         self.points = points
+        self.all_cords = list(points.keys())
+
         self.day = 0
         self.text = f"Day: {self.day}"
         # Set the window's background color
@@ -40,6 +41,7 @@ class GUI(arcade.Window):
         self.grid_sprite_list = arcade.SpriteList()
         self.grid_sprites = []
 
+        self._threads_num = threads_num
         self.initialize_grid()
         #arcade.schedule(self.update_day, 5)
         arcade.schedule(self.simulate, 5)
@@ -52,17 +54,25 @@ class GUI(arcade.Window):
         self.text = f"Day: {self.day}"
 
     def simulate(self, delta_time: float):
-        for point in self.points.values():
-            infected_to_neighbours, infected_out_neighbours = point.model.get_moving_I_people()
-            sum_ = infected_to_neighbours + infected_out_neighbours
-            x, y = randint(100, 600), randint(100, 600)
-            while not self.points.__contains__((x, y)): #TODO nie wrzucac wszystkich do jednego pointa
-                x, y = randint(100, 600), randint(100, 600)
-            self.points[(x, y)].arrived_infected = sum_
+        n = len(self.all_cords)
+        threads_point_len = round(n / self._threads_num)
+        from_to = [(0 + i*threads_point_len, threads_point_len + i*threads_point_len) for i in range(self._threads_num-1)]
+        from_to.append((0+(self._threads_num-1)*threads_point_len, n))
+        threads = [SimulateThread(self.points, self.all_cords, from_to[i]) for i in range(self._threads_num)]
 
-        for point in self.points.values():
-            point.simulate()
+        for thread in threads:
+            thread.start()
 
+        for thread in threads:
+            while not thread.finished_moving:
+                pass
+
+        SimulateThread.all_threads_finished_moving = True
+
+        for thread in threads:
+            thread.join()
+
+        SimulateThread.all_threads_finished_moving = False
         self.day += 1
         self.text = f"Day: {self.day}"
 
@@ -84,26 +94,19 @@ class GUI(arcade.Window):
             if point.I > 0:
                 self.grid_sprites[point.x][point.y].color = arcade.color.GOLD
 
-    def initialize_grid(self, load=False) -> None:
+    def initialize_grid(self) -> None:
         # Create a list of solid-color sprites to represent each grid location
-        if load:
-            self.grid_sprites = dill.loads(open("data\\grid_sprites", "rb"))
-            self.grid_sprite_list = dill.loads(open("data\\grid_sprite_list", "rb"))
-        else:
-            for row in range(self.x_size):
-                self.grid_sprites.append([])
-                for column in range(self.y_size):
-                    sprite = arcade.SpriteSolidColor(1, 1, arcade.color.WHITE)
-                    if self.map[row, column] != 255:
-                        sprite.color = (self.map[row, column], 0, 0)
+        for row in range(self.x_size):
+            self.grid_sprites.append([])
+            for column in range(self.y_size):
+                sprite = arcade.SpriteSolidColor(1, 1, arcade.color.WHITE)
+                if self.map[row, column] != 255:
+                    sprite.color = (self.map[row, column], 0, 0)
 
-                    sprite.center_x = column
-                    sprite.center_y = self.x_size - row
-                    self.grid_sprite_list.append(sprite)
-                    self.grid_sprites[row].append(sprite)
-
-            dill.dumps(deepcopy(self.grid_sprites), open("data\\grid_sprites", "wb"))
-            dill.dumps(deepcopy(self.grid_sprite_list), open("data\\grid_sprite_list", "wb"))
+                sprite.center_x = column
+                sprite.center_y = self.x_size - row
+                self.grid_sprite_list.append(sprite)
+                self.grid_sprites[row].append(sprite)
 
     def on_mouse_press(self, x, y, button, modifiers):
         """
