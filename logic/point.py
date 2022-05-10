@@ -1,5 +1,7 @@
 class Point:
-    def __init__(self, init_N: int, province: str = None):  # TODO province should be enum I think
+    def __init__(self, init_N: int, x: int, y: int, province: str = None):  # TODO province should be enum I think
+        self.x = x
+        self.y = y
         self._N = init_N
         self._province = province
         self._model = None
