@@ -13,7 +13,7 @@ class Point:
         self.move_probability = 0.5
         self.neighbours_move_probability = 0.7
         self.arrived_infected = 0
-
+        self._points_sorted_by_distance = None
 
     @property
     def N(self):
@@ -62,6 +62,14 @@ class Point:
     @model.setter
     def model(self, model_class):
         self._model = model_class(self)
+
+    @property
+    def points_sorted_by_distance(self):
+        return self._points_sorted_by_distance
+
+    @points_sorted_by_distance.setter
+    def points_sorted_by_distance(self, sorted_points):
+        self._points_sorted_by_distance = sorted_points
 
     def simulate(self):
         """Simulate next day"""

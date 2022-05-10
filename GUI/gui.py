@@ -43,7 +43,7 @@ class GUI(arcade.Window):
 
         self._threads_num = threads_num
         self.initialize_grid()
-        #arcade.schedule(self.update_day, 5)
+        # arcade.schedule(self.update_day, 5)
         arcade.schedule(self.simulate, 5)
 
     def update_day(self, delta_time: float) -> None:
@@ -56,8 +56,9 @@ class GUI(arcade.Window):
     def simulate(self, delta_time: float):
         n = len(self.all_cords)
         threads_point_len = round(n / self._threads_num)
-        from_to = [(0 + i*threads_point_len, threads_point_len + i*threads_point_len) for i in range(self._threads_num-1)]
-        from_to.append((0+(self._threads_num-1)*threads_point_len, n))
+        from_to = [(0 + i * threads_point_len, threads_point_len + i * threads_point_len) for i in
+                   range(self._threads_num - 1)]
+        from_to.append((0 + (self._threads_num - 1) * threads_point_len, n))
         threads = [SimulateThread(self.points, self.all_cords, from_to[i]) for i in range(self._threads_num)]
 
         for thread in threads:
@@ -85,14 +86,17 @@ class GUI(arcade.Window):
         # We should always start by clearing the window pixels
         self.clear()
 
+        for point in self.points.values():
+            prev_color = self.grid_sprites[point.x][point.y].color
+            g = round((point.I / point.N) * 255)
+            new_color = (self.grid_sprites[point.x][point.y].color[0], g, 0)
+            if new_color != prev_color:
+                self.grid_sprites[point.x][point.y].color = arcade.color.GOLD
+
         # Batch draw all the sprites
         self.grid_sprite_list.draw()
         arcade.draw_text(self.text, TEXT_PADDING, self.x_size + TEXT_PADDING,
                          arcade.color.BLACK, 40, 80, 'left')
-
-        for point in self.points.values():
-            if point.I > 0:
-                self.grid_sprites[point.x][point.y].color = arcade.color.GOLD
 
     def initialize_grid(self) -> None:
         # Create a list of solid-color sprites to represent each grid location
@@ -118,6 +122,6 @@ class GUI(arcade.Window):
         for i in range(10):
             for j in range(10):
                 self.grid_sprites[self.x_size - int(y) + i][int(x) + j].color = color
-                self.points[(self.x_size - int(y) + i, int(x) + j)].I = self.points[
-                    (self.x_size - int(y) + i, int(x) + j)].N
+                self.points[(self.x_size - int(y) + i, int(x) + j)].I = \
+                    self.points[(self.x_size - int(y) + i, int(x) + j)].N
                 self.points[(self.x_size - int(y) + i, int(x) + j)].S = 0

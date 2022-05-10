@@ -12,7 +12,7 @@ class SimulateThread(threading.Thread):
         super().__init__()
         self._points = points
         self._all_cords = all_cords
-        self._reduced_cords = self._all_cords[simulate_form_to[0] : simulate_form_to[1]]
+        self._reduced_cords = self._all_cords[simulate_form_to[0]: simulate_form_to[1]]
         self._finished_moving = False
 
     @property
@@ -26,15 +26,20 @@ class SimulateThread(threading.Thread):
             infected_to_neighbours, infected_out_neighbours = point.model.get_moving_I_people()
             sum_ = infected_to_neighbours + infected_out_neighbours
 
-            moving_positions = choices(self._all_cords, k=sum_)
+            moving_positions = choices(
+                self._points[cord].points_sorted_by_distance,
+                [i for i in range(len(self._points[cord].points_sorted_by_distance), -1, -1)],
+                k=sum_)
+
             counter = Counter(moving_positions)
             for moving_cord in counter.keys():
                 self._points[moving_cord].arrived_infected += counter[moving_cord]
 
-        print("MOVING FINISHED")
+        print(f"MOVING FINISHED {self.ident}")
         self._finished_moving = True
         while not self.all_threads_finished_moving:
-            print(f"I AM WAITING {self.ident}")
+            pass
 
         for cord in self._reduced_cords:
             self._points[cord].simulate()
+        print(f"THREAD FINISHED {self.ident}")

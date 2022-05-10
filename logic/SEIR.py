@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 from random import choices, shuffle
 from math import ceil, floor
 
-beta = 0.45
-sigma = 0.1
-gamma = 0.1
+sigma = 1/5.2
+gamma = 1/2.3
+beta = 2.2 * gamma
 
 # http://web.pdx.edu/~gjay/teaching/mth271_2020/html/09_SEIR_model.html
 class GenericModel(ABC):
@@ -25,10 +25,13 @@ class SEIR(GenericModel):
         s, e, i, r = [val / n for val in
                       (self._point.S, self._point.E, self._point.I + self._point.arrived_infected, self._point.R)]
 
-        new_s = self._point.S - beta * i * s
-        new_e = self._point.E + (beta * i * s - sigma * e)
-        new_i = self._point.I + sigma * e - gamma * i
-        new_r = self._point.R + gamma * i
+        beta_i_s, sigma_e, gamma_i = round(beta * i * s), round(sigma * e), round(gamma * i)
+        new_s, new_e, new_i, new_r = (
+            self._point.S - beta_i_s,
+            self._point.E + beta_i_s - sigma_e,
+            self._point.I + sigma_e - gamma_i,
+            self._point.R + gamma_i
+        )
 
         if new_i < self._point.arrived_infected:
             diff = self._point.arrived_infected - new_i
