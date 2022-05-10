@@ -17,6 +17,7 @@ TEXT_PADDING = 50
 
 
 # TODO uzyc center_window()
+# TODO zrobic stałą = 4 i odpowiednio przeskalowac bo wszedzie jest dzielenie przez 4 XD
 class GUI(arcade.Window):
     """
     Main application class.
@@ -27,8 +28,8 @@ class GUI(arcade.Window):
         Set up the application.
         """
         self.map = np.load(path)
-        self.x_size = len(self.map)
-        self.y_size = len(self.map[0])
+        self.x_size = len(self.map)*4
+        self.y_size = len(self.map[0])*4
         super().__init__(self.y_size, self.x_size + 100,
                          SCREEN_TITLE)  # chwilowo rozmiary mapki wejsciowej, trzeba przeskalowac
 
@@ -61,7 +62,7 @@ class GUI(arcade.Window):
         self._threads_num = threads_num
         self.initialize_grid()
         # arcade.schedule(self.update_day, 5)
-        arcade.schedule(self.simulate, 5)
+        arcade.schedule(self.simulate, 1)
 
     def update_day(self, delta_time: float) -> None:
         """
@@ -121,15 +122,15 @@ class GUI(arcade.Window):
 
     def initialize_grid(self) -> None:
         # Create a list of solid-color sprites to represent each grid location
-        for row in range(self.x_size):
+        for row in range(self.x_size//4):
             self.grid_sprites.append([])
-            for column in range(self.y_size):
-                sprite = arcade.SpriteSolidColor(1, 1, arcade.color.WHITE)
+            for column in range(self.y_size//4):
+                sprite = arcade.SpriteSolidColor(16, 16, arcade.color.WHITE)
                 if self.map[row, column] != 255:
                     sprite.color = (self.map[row, column], 0, 0)
 
-                sprite.center_x = column
-                sprite.center_y = self.x_size - row
+                sprite.center_x = column*4
+                sprite.center_y = self.x_size - row*4
                 self.grid_sprite_list.append(sprite)
                 self.grid_sprites[row].append(sprite)
 
@@ -142,12 +143,11 @@ class GUI(arcade.Window):
 
         color = arcade.color.GREEN
 
-        for i in range(10):
-            for j in range(10):
-                self.grid_sprites[self.x_size - int(y) + i][int(x) + j].color = color
-                self.points[(self.x_size - int(y) + i, int(x) + j)].I = self.points[
-                    (self.x_size - int(y) + i, int(x) + j)].N
-                self.points[(self.x_size - int(y) + i, int(x) + j)].S = 0
+
+        self.grid_sprites[self.x_size//4 - int(y//4)][int(x//4)].color = color
+        self.points[(self.x_size//4 - int(y//4), int(x//4))].I = self.points[
+                    (self.x_size//4 - int(y//4), int(x//4))].N
+        self.points[(self.x_size//4 - int(y//4), int(x//4))].S = 0
 
     def on_button_click(self, event):
         """

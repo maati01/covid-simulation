@@ -20,7 +20,6 @@ class SimulateThread(threading.Thread):
         return self._finished_moving
 
     def run(self):
-        print(f"THREAD STARTED {self.ident}")
         for cord in self._reduced_cords:
             point = self._points[cord]
             infected_to_neighbours, infected_out_neighbours = point.model.get_moving_I_people()
@@ -31,10 +30,8 @@ class SimulateThread(threading.Thread):
             for moving_cord in counter.keys():
                 self._points[moving_cord].arrived_infected += counter[moving_cord]
 
-        print("MOVING FINISHED")
         self._finished_moving = True
         while not self.all_threads_finished_moving:
-            print(f"I AM WAITING {self.ident}")
-
+            pass
         for cord in self._reduced_cords:
             self._points[cord].simulate()
