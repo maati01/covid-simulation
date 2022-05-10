@@ -36,6 +36,7 @@ class SEIR(GenericModel):
             new_r -= diff
 
         self._point.S, self._point.E, self._point.I, self._point.R = new_s, new_e, new_i, new_r
+        self._point.arrived_infected = 0
 
     def get_moving_I_people(self):
         """getting number of moving infected people"""
