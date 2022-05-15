@@ -3,6 +3,7 @@ import numpy as np
 from GUI.gui import GUI
 from logic.point import Point
 from logic.SEIR import SEIR
+<<<<<<< HEAD
 import math
 
 PATH_TO_BINARY_ARRAY = "data/binary_array.npy"
@@ -15,14 +16,29 @@ class Engine:
         self.points = self._create_matrix_of_points()
         self._set_points_by_distance_for_points()
         self.gui = GUI(PATH_TO_BINARY_ARRAY, self.points)
+=======
+from helper.config import set_mode
+
+class Engine:
+    def __init__(self):
+        scale, path_to_binary_array, path_to_population_array = set_mode()
+
+        self.points = self._create_matrix_of_points(path_to_population_array)
+        self.gui = GUI(path_to_binary_array, self.points, scale=scale)
+>>>>>>> master
 
         # TODO initial chorzy
         # TODO run and check
         arcade.run()
 
+<<<<<<< HEAD
     @staticmethod
     def _create_matrix_of_points():
         populations = np.load(PATH_TO_POPULATION_ARRAY)
+=======
+    def _create_matrix_of_points(self, path: str):
+        populations = np.load(path)
+>>>>>>> master
         n, m = len(populations), len(populations[0])
         points = {}
         for i in range(n):

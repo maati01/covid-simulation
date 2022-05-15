@@ -1,14 +1,8 @@
-from math import inf
-
 import arcade
 import arcade.gui
 import numpy as np
-from typing import List
 from logic.point import Point
-from random import randint
 from logic.threads import SimulateThread
-import weakref
-from copy import deepcopy
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -17,19 +11,23 @@ TEXT_PADDING = 50
 
 
 # TODO uzyc center_window()
+
+
 class GUI(arcade.Window):
     """
     Main application class.
     """
 
-    def __init__(self, path: str, points: dict[tuple[int, int], Point], threads_num=8):
+    def __init__(self, path: str, points: dict[tuple[int, int], Point], threads_num=8, scale=1):
         """
         Set up the application.
         """
         self.map = np.load(path)
         self.x_size = len(self.map)
         self.y_size = len(self.map[0])
-        super().__init__(self.y_size, self.x_size + 100,
+        self.scale = scale
+
+        super().__init__(self.y_size * scale, self.x_size * scale + 100,
                          SCREEN_TITLE)  # chwilowo rozmiary mapki wejsciowej, trzeba przeskalowac
 
         # Creating a UI MANAGER to handle the UI
@@ -61,7 +59,7 @@ class GUI(arcade.Window):
         self._threads_num = threads_num
         self.initialize_grid()
         # arcade.schedule(self.update_day, 5)
-        arcade.schedule(self.simulate, 5)
+        arcade.schedule(self.simulate, 1)
 
     def update_day(self, delta_time: float) -> None:
         """
@@ -118,25 +116,23 @@ class GUI(arcade.Window):
 
         self.uimanager.draw()
 
-        arcade.draw_text(self.text, TEXT_PADDING, self.x_size + TEXT_PADDING,
+        arcade.draw_text(self.text, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,
                          arcade.color.BLACK, 40, 80, 'left')
-
 
     def initialize_grid(self) -> None:
         # Create a list of solid-color sprites to represent each grid location
+
         for row in range(self.x_size):
             self.grid_sprites.append([])
             for column in range(self.y_size):
-                sprite = arcade.SpriteSolidColor(1, 1, arcade.color.WHITE)
+                sprite = arcade.SpriteSolidColor(self.scale, self.scale, arcade.color.WHITE)
                 if self.map[row, column] != 255:
                     sprite.color = (self.map[row, column], 0, 0)
 
-                sprite.center_x = column
-                sprite.center_y = self.x_size - row
+                sprite.center_x = column * self.scale
+                sprite.center_y = (self.x_size - row) * self.scale
                 self.grid_sprite_list.append(sprite)
                 self.grid_sprites[row].append(sprite)
-
-
 
     def on_mouse_press(self, x, y, button, modifiers):
         """
@@ -145,12 +141,13 @@ class GUI(arcade.Window):
 
         color = arcade.color.GREEN
 
-        for i in range(10):
-            for j in range(10):
-                self.grid_sprites[self.x_size - int(y) + i][int(x) + j].color = color
-                self.points[(self.x_size - int(y) + i, int(x) + j)].I = \
-                    self.points[(self.x_size - int(y) + i, int(x) + j)].N
-                self.points[(self.x_size - int(y) + i, int(x) + j)].S = 0
+        temp = x
+        x = self.x_size - int(y // self.scale)
+        y = int(temp // self.scale)
+
+        self.grid_sprites[x][y].color = color
+        self.points[x, y].I = self.points[x, y].N
+        self.points[x, y].S = 0
 
     def on_button_click(self, event):
         """
