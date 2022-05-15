@@ -109,7 +109,7 @@ class GUI(arcade.Window):
 
         self.uimanager.draw()
 
-        arcade.draw_text(self.text, TEXT_PADDING, self.x_size*self.scale + TEXT_PADDING,
+        arcade.draw_text(self.text, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,
                          arcade.color.BLACK, 40, 80, 'left')
 
         for point in self.points.values():
@@ -127,7 +127,7 @@ class GUI(arcade.Window):
                     sprite.color = (self.map[row, column], 0, 0)
 
                 sprite.center_x = column * self.scale
-                sprite.center_y = self.x_size - row * self.scale
+                sprite.center_y = (self.x_size - row) * self.scale
                 self.grid_sprite_list.append(sprite)
                 self.grid_sprites[row].append(sprite)
 
@@ -139,7 +139,7 @@ class GUI(arcade.Window):
         color = arcade.color.GREEN
 
         temp = x
-        x = self.x_size // self.scale - int(y // self.scale)
+        x = self.x_size - int(y // self.scale)
         y = int(temp // self.scale)
 
         self.grid_sprites[x][y].color = color
