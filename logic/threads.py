@@ -34,17 +34,11 @@ class SimulateThread(threading.Thread):
             for moving_cord in counter.keys():
                 self._points[moving_cord].arrived_infected += counter[moving_cord]
 
-<<<<<<< HEAD
         print(f"MOVING FINISHED {self.ident}")
         self._finished_moving = True
         while not self.all_threads_finished_moving:
             pass
 
-=======
-        self._finished_moving = True
-        while not self.all_threads_finished_moving:
-            pass
->>>>>>> master
         for cord in self._reduced_cords:
             self._points[cord].simulate()
         print(f"THREAD FINISHED {self.ident}")
