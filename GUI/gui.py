@@ -107,9 +107,9 @@ class GUI(arcade.Window):
         for point in self.points.values():
             prev_color = self.grid_sprites[point.x][point.y].color
             g = round((point.I / point.N) * 255)
-            new_color = (self.grid_sprites[point.x][point.y].color[0], g, 0)
-            if new_color != prev_color:
-                self.grid_sprites[point.x][point.y].color = arcade.color.GOLD
+            new_color = (prev_color[0], g, 0)
+            # if new_color != prev_color:
+            self.grid_sprites[point.x][point.y].color = new_color
 
         # Batch draw all the sprites
         self.grid_sprite_list.draw()
@@ -138,16 +138,14 @@ class GUI(arcade.Window):
         """
         Called when the user presses a mouse button.
         """
-
-        color = arcade.color.GREEN
-
         temp = x
         x = self.x_size - int(y // self.scale)
         y = int(temp // self.scale)
 
-        self.grid_sprites[x][y].color = color
         self.points[x, y].I = self.points[x, y].N
         self.points[x, y].S = 0
+
+        self.grid_sprites[x][y].color = (255, 255, 0)
 
     def on_button_click(self, event):
         """

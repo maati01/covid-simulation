@@ -9,11 +9,10 @@ class Point:
         self._E = 0
         self._I = 0
         self._R = 0
-        self.neighbours = list()
-        self.move_probability = 0.5
-        self.neighbours_move_probability = 0.7
+        self._neighbours = list()
+        self.move_probability = 0.8
+        self.neighbours_move_probability = 0.99
         self.arrived_infected = 0
-        self._points_sorted_by_distance = None
 
     @property
     def N(self):
@@ -58,6 +57,14 @@ class Point:
     @property
     def model(self):
         return self._model
+
+    @property
+    def neighbours(self):
+        return self._neighbours
+
+    @neighbours.setter
+    def neighbours(self, value):
+        self._neighbours = value
 
     @model.setter
     def model(self, model_class):

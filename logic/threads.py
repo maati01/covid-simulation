@@ -1,3 +1,4 @@
+import random
 import threading
 from logic.point import Point
 from random import choices
@@ -23,13 +24,10 @@ class SimulateThread(threading.Thread):
         for cord in self._reduced_cords:
             point = self._points[cord]
             infected_to_neighbours, infected_out_neighbours = point.model.get_moving_I_people()
-            sum_ = infected_to_neighbours + infected_out_neighbours
 
-            moving_positions = choices(
-                self._points[cord].points_sorted_by_distance,
-                [i for i in range(len(self._points[cord].points_sorted_by_distance), -1, -1)],
-                k=sum_)
-
+            moving_positions_to = choices([(p.x, p.y) for p in point.neighbours], k=infected_to_neighbours)
+            moving_positions_out = choices(self._all_cords, k=infected_out_neighbours) #TODO without neighbours and self
+            moving_positions = moving_positions_out + moving_positions_to
             counter = Counter(moving_positions)
             for moving_cord in counter.keys():
                 self._points[moving_cord].arrived_infected += counter[moving_cord]
@@ -41,4 +39,5 @@ class SimulateThread(threading.Thread):
 
         for cord in self._reduced_cords:
             self._points[cord].simulate()
+
         print(f"THREAD FINISHED {self.ident}")
