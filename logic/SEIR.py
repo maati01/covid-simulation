@@ -3,9 +3,10 @@ from abc import ABC, abstractmethod
 from random import choices, shuffle
 from math import ceil, floor
 
-sigma = 1/5.2
-gamma = 1/2.3
-beta = 2.2 * gamma
+# Italy params from link below
+kappa = 0.012
+gamma = 0.017
+beta = 1 #0.22
 
 # http://web.pdx.edu/~gjay/teaching/mth271_2020/html/09_SEIR_model.html
 class GenericModel(ABC):
@@ -17,20 +18,20 @@ class GenericModel(ABC):
         """Abstarct method to simulate point"""
         pass
 
-
+# https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7277829/#:~:text=The%20classical%20SEIR%20model%20can%20be%20described%20by%20a%20series%20of%20ordinary%20differential%20equations%3A
 class SEIR(GenericModel):
     def simulate(self):
         """Func to simulate point with SEIR model"""
-        n = self._point.N + self._point.arrived_infected
-        s, e, i, r = [val / n for val in
-                      (self._point.S, self._point.E, self._point.I + self._point.arrived_infected, self._point.R)]
+        n, i = [p + self._point.arrived_infected for p in (self._point.N, self._point.I)]
+        s_div_n = self._point.S / n
+        e, r = self._point.E, self._point.R
 
-        beta_i_s, sigma_e, gamma_i = round(beta * i * s), round(sigma * e), round(gamma * i)
+        beta_i_s_div_n, gamma_e, gamma_and_kappa_I = round(beta * self._point.I * s_div_n), round(gamma * e), round((gamma+kappa) * i)
         new_s, new_e, new_i, new_r = (
-            self._point.S - beta_i_s,
-            self._point.E + beta_i_s - sigma_e,
-            self._point.I + sigma_e - gamma_i,
-            self._point.R + gamma_i
+            self._point.S - beta_i_s_div_n,
+            self._point.E + beta_i_s_div_n - gamma_e,
+            self._point.I + gamma_e - gamma_and_kappa_I,
+            self._point.R + gamma_and_kappa_I
         )
 
         if new_i < self._point.arrived_infected:

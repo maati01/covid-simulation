@@ -106,10 +106,12 @@ class GUI(arcade.Window):
 
         for point in self.points.values():
             prev_color = self.grid_sprites[point.x][point.y].color
-            g = round((point.I / point.N) * 255)
-            new_color = (prev_color[0], g, 0)
+            g = min(round((point.I / point.N) * 255), 255)
+            if g > 0:
+                new_color = arcade.color.AERO_BLUE
+            #new_color = (prev_color[0], g, 0)
             # if new_color != prev_color:
-            self.grid_sprites[point.x][point.y].color = new_color
+                self.grid_sprites[point.x][point.y].color = new_color
 
         # Batch draw all the sprites
         self.grid_sprite_list.draw()
