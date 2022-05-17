@@ -8,7 +8,8 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Covid Simulation"
 TEXT_PADDING = 50
-
+FONT_SIZE = 40
+TEXT_WIDTH = 80
 
 # TODO uzyc center_window()
 
@@ -27,7 +28,7 @@ class GUI(arcade.Window):
         self.y_size = len(self.map[0])
         self.scale = scale
 
-        super().__init__(self.y_size * scale, self.x_size * scale + 100,
+        super().__init__(self.y_size * scale + 600, self.x_size * scale + 100,
                          SCREEN_TITLE)  # chwilowo rozmiary mapki wejsciowej, trzeba przeskalowac
 
         # Creating a UI MANAGER to handle the UI
@@ -46,9 +47,19 @@ class GUI(arcade.Window):
 
         self.points = points
         self.all_cords = list(points.keys())
-
         self.day = 0
         self.text = f"Day: {self.day}"
+
+        self.susceptible_cnt = 0
+        self.exposed_cnt = 0
+        self.infective_cnt = 0
+        self.recovered_cnt = 0
+
+        self.susceptible = f"susceptible: {self.susceptible_cnt}"
+        self.exposed = f"exposed: {self.exposed_cnt}"
+        self.infective = f"infective: {self.infective_cnt}"
+        self.recovered = f"recovered: {self.recovered_cnt}"
+
         # Set the window's background color
         self.background_color = arcade.color.WHITE
         # Create a spritelist for batch drawing all the grid sprites
@@ -58,15 +69,44 @@ class GUI(arcade.Window):
 
         self._threads_num = threads_num
         self.initialize_grid()
-        # arcade.schedule(self.update_day, 5)
         arcade.schedule(self.simulate, 1)
 
-    def update_day(self, delta_time: float) -> None:
-        """
-        Update days.
-        """
+    def update_day(self):
         self.day += 1
         self.text = f"Day: {self.day}"
+
+    def update_info(self):
+        self.susceptible = f"susceptible: {self.susceptible_cnt}"
+        self.exposed = f"exposed: {self.exposed_cnt}"
+        self.infective = f"infective: {self.infective_cnt}"
+        self.recovered = f"recovered: {self.recovered_cnt}"
+
+    def reset_counters(self):
+        self.susceptible_cnt = 0
+        self.exposed_cnt = 0
+        self.infective_cnt = 0
+        self.recovered_cnt = 0
+
+    #TODO z jakiegos powodu musze tutaj mnozyc, bo przy zapisywaniu arraya spowalnia program
+    def update_counters(self, point: Point):
+        self.susceptible_cnt += point.S*(self.scale**2)
+        self.exposed_cnt += point.E*(self.scale**2)
+        self.infective_cnt += point.I*(self.scale**2)
+        self.recovered_cnt += point.R*(self.scale**2)
+
+    def update_text(self):
+        #TODO dodac funkcje i stale dla tekstów
+        arcade.draw_text(self.text, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,
+                         arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH, 'left')
+
+        arcade.draw_text(self.susceptible, self.y_size * self.scale, self.x_size * self.scale + TEXT_PADDING,
+                         arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+        arcade.draw_text(self.exposed, self.y_size * self.scale, self.x_size * self.scale,
+                         arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+        arcade.draw_text(self.infective, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING,
+                         arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+        arcade.draw_text(self.recovered, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING*2,
+                         arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
 
     def simulate(self, delta_time: float):
         if not self.is_running:
@@ -92,8 +132,8 @@ class GUI(arcade.Window):
             thread.join()
 
         SimulateThread.all_threads_finished_moving = False
-        self.day += 1
-        self.text = f"Day: {self.day}"
+        self.update_day()
+        self.update_info()
 
     def on_draw(self) -> None:
         """
@@ -102,24 +142,24 @@ class GUI(arcade.Window):
         arcade.start_render()
 
         # We should always start by clearing the window pixels
-        # self.clear()
+        self.clear()
 
-        for point in self.points.values():
-            prev_color = self.grid_sprites[point.x][point.y].color
-            g = min(round((point.I / point.N) * 255), 255)
-            if g > 0:
-                new_color = arcade.color.AERO_BLUE
-            #new_color = (prev_color[0], g, 0)
-            # if new_color != prev_color:
-                self.grid_sprites[point.x][point.y].color = new_color
-
-        # Batch draw all the sprites
         self.grid_sprite_list.draw()
 
-        self.uimanager.draw()
+        self.reset_counters()
 
-        arcade.draw_text(self.text, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,
-                         arcade.color.BLACK, 40, 80, 'left')
+        for point in self.points.values():
+            if point.I > 0:
+                g = int((point.I / point.N) * 255)
+                new_color = (g, 0, 0)
+                self.grid_sprites[point.x][point.y].color = arcade.color.RED
+
+            self.update_counters(point)
+
+        # Batch draw all the sprites
+
+        self.uimanager.draw()
+        self.update_text()
 
     def initialize_grid(self) -> None:
         # Create a list of solid-color sprites to represent each grid location
@@ -129,8 +169,7 @@ class GUI(arcade.Window):
             for column in range(self.y_size):
                 sprite = arcade.SpriteSolidColor(self.scale, self.scale, arcade.color.WHITE)
                 if self.map[row, column] != 255:
-                    sprite.color = (self.map[row, column], 0, 0)
-
+                    sprite.color = (0, self.map[row, column], 0)
                 sprite.center_x = column * self.scale
                 sprite.center_y = (self.x_size - row) * self.scale
                 self.grid_sprite_list.append(sprite)
@@ -144,10 +183,10 @@ class GUI(arcade.Window):
         x = self.x_size - int(y // self.scale)
         y = int(temp // self.scale)
 
-        self.points[x, y].I = 1
-        self.points[x, y].S = self.points[x, y].S - 1
+        self.points[x, y].I = self.points[(x, y)].N
+        self.points[x, y].S = 0
 
-        self.grid_sprites[x][y].color = (255, 255, 0)
+        self.grid_sprites[x][y].color = arcade.color.RED
 
     def on_button_click(self, event):
         """
