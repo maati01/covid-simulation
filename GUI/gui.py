@@ -1,6 +1,10 @@
 import arcade
 import arcade.gui
+import matplotlib
 import numpy as np
+from matplotlib.colors import ListedColormap
+
+
 from logic.point import Point
 from logic.threads import SimulateThread
 
@@ -23,10 +27,13 @@ class GUI(arcade.Window):
         """
         Set up the application.
         """
+
         self.map = np.load(path)
         self.x_size = len(self.map)
         self.y_size = len(self.map[0])
         self.scale = scale
+
+        self.color_bar = self._create_color_bar()
 
         super().__init__(self.y_size * scale + 600, self.x_size * scale + 100,
                          SCREEN_TITLE)  # chwilowo rozmiary mapki wejsciowej, trzeba przeskalowac
@@ -67,9 +74,20 @@ class GUI(arcade.Window):
         self.grid_sprite_list = arcade.SpriteList()
         self.grid_sprites = []
 
+
         self._threads_num = threads_num
         self.initialize_grid()
         arcade.schedule(self.simulate, 1)
+
+    @staticmethod
+    def _create_color_bar():
+        cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue", "yellow", "red"])
+        distance_list = [i for i in range(0, 256)]
+
+        # convert your distances to color coordinates
+        color_list = cmap(distance_list)
+
+        return color_list
 
     def update_day(self):
         self.day += 1
@@ -95,7 +113,6 @@ class GUI(arcade.Window):
         self.recovered_cnt += point.R*(self.scale**2)
 
     def update_text(self):
-        #TODO dodac funkcje i stale dla tekstów
         arcade.draw_text(self.text, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH, 'left')
 
@@ -148,18 +165,25 @@ class GUI(arcade.Window):
 
         self.reset_counters()
 
+
         for point in self.points.values():
             if point.I > 0:
-                g = int((point.I / point.N) * 255)
-                new_color = (g, 0, 0)
-                self.grid_sprites[point.x][point.y].color = arcade.color.RED
-
+                idx = int((point.I / point.N) * 255)
+                new_color = tuple([val*255 for val in self.color_bar[idx]])
+                self.grid_sprites[point.x][point.y].color = new_color
             self.update_counters(point)
 
         # Batch draw all the sprites
 
         self.uimanager.draw()
         self.update_text()
+
+        texture = arcade.load_texture("data/colorbar.jpg")
+        arcade.draw_texture_rectangle(self.x_size * self.scale + 120, self.y_size * self.scale - 400,
+                                      texture.width*0.8,
+                                      texture.height*0.8, texture, 0)
+
+
 
     def initialize_grid(self) -> None:
         # Create a list of solid-color sprites to represent each grid location
