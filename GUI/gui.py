@@ -144,8 +144,8 @@ class GUI(arcade.Window):
         x = self.x_size - int(y // self.scale)
         y = int(temp // self.scale)
 
-        self.points[x, y].I = self.points[x, y].N
-        self.points[x, y].S = 0
+        self.points[x, y].I = 1
+        self.points[x, y].S = self.points[x, y].S - 1
 
         self.grid_sprites[x][y].color = (255, 255, 0)
 
