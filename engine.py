@@ -8,10 +8,10 @@ from helper.config import set_mode
 
 class Engine:
     def __init__(self):
-        scale, path_to_binary_array, path_to_population_array = set_mode()
+        scale, path_to_binary_array, path_to_population_array, path_to_color_abr = set_mode()
 
         self.points = self._create_matrix_of_points(path_to_population_array)
-        self.gui = GUI(path_to_binary_array, self.points, scale=scale)
+        self.gui = GUI(path_to_binary_array, path_to_color_abr, self.points, scale=scale)
 
         # TODO macierz pointow
         # TODO initial chorzy

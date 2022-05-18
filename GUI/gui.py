@@ -13,7 +13,6 @@ SCREEN_TITLE = "Covid Simulation"
 TEXT_PADDING = 50
 FONT_SIZE = 40
 TEXT_WIDTH = 80
-PATH_TO_COLOR_BAR = "data/colorbar.jpg"
 
 
 # TODO uzyc center_window()
@@ -24,12 +23,12 @@ class GUI(arcade.Window):
     Main application class.
     """
 
-    def __init__(self, path: str, points: dict[tuple[int, int], Point], threads_num=8, scale=1):
+    def __init__(self, path_to_array: str, path_to_color_bar: str, points: dict[tuple[int, int], Point], threads_num=8, scale=1):
         """
         Set up the application.
         """
 
-        self.map = np.load(path)
+        self.map = np.load(path_to_array)
         self.x_size = len(self.map)
         self.y_size = len(self.map[0])
         self.scale = scale
@@ -46,7 +45,7 @@ class GUI(arcade.Window):
         # Creating Button using UIFlatButton
         self.start_button = arcade.gui.UIFlatButton(text="Start", width=200)
 
-        self.color_bar_img = arcade.load_texture(PATH_TO_COLOR_BAR)
+        self.color_bar_img = arcade.load_texture(path_to_color_bar)
 
         # Assigning our on_buttonclick() function
         self.is_running = False
