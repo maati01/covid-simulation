@@ -5,8 +5,8 @@ from math import ceil, floor
 
 # Italy params from link below
 kappa = 0.012
-gamma = 0.21
-beta = 0.56  # 0.22
+gamma = 0.017
+beta = 0.22
 
 
 # http://web.pdx.edu/~gjay/teaching/mth271_2020/html/09_SEIR_model.html
@@ -24,38 +24,35 @@ class GenericModel(ABC):
 class SEIR(GenericModel):
     def simulate(self):
         """Func to simulate point with SEIR model"""
-        n, i = [p + self._point.arrived_infected for p in (self._point.N, self._point.I)]
+        i_able_to_recover, e_able_to_infected = self._point.I[-1], self._point.E[-1]
+        n, i = [p + self._point.arrived_infected for p in (self._point.N, sum(self._point.I))]
         s_div_n = self._point.S / n
-        e, r = self._point.E, self._point.R
+        e, r = sum(self._point.E), self._point.R
 
-        beta_i_s_div_n, gamma_e, gamma_and_kappa_I = round(beta * i * s_div_n), round(gamma * e), round(
-            (gamma + kappa) * i)
-        new_s, new_e, new_i, new_r = (
-            self._point.S - beta_i_s_div_n,
-            e + beta_i_s_div_n - gamma_e,
-            i + gamma_e - gamma_and_kappa_I,
-            r + gamma_and_kappa_I
+        beta_i_s_div_n, gamma_e, gamma_and_kappa_I = \
+            round(beta * i * s_div_n), round(gamma * e_able_to_infected), round((gamma + kappa) * i_able_to_recover)
+
+        delta_s, delta_e, delta_i, delta_r = (
+            -beta_i_s_div_n,
+            beta_i_s_div_n - gamma_e,
+            gamma_e - gamma_and_kappa_I,
+            gamma_and_kappa_I
         )
 
-        new_i -= self._point.arrived_infected
-        if new_i < 0:
-            new_r, new_i = new_r + new_i, 0
-
-        if new_r < 0:
-            print("ARRIVED INF: ", self._point.arrived_infected)
-            print(f"s {self._point.S}, i {self._point.I}, r {self._point.R}, e {self._point.E}")
-            print(f"new s {new_s}, new i {new_i}, new_r {new_r}, new e {new_e}")
-            print(f"beta {beta_i_s_div_n}, gamma {gamma_e}, gamma_kappa {gamma_and_kappa_I}")
-
-        self._point.S, self._point.E, self._point.I, self._point.R = new_s, new_e, new_i, new_r
+        self._point.S += delta_s
+        self._point.E[-1] += delta_e
+        self._point.I[-1] += delta_i
+        self._point.R += delta_r
         self._point.arrived_infected = 0
+        self._point.move_lists_stats()
+
 
     def get_moving_I_people(self):
         """getting number of moving infected people"""
         people_to_move = round(self._point.N * self._point.move_probability)
         to_neighbours = round(people_to_move * self._point.neighbours_move_probability)
 
-        weights = [val / self._point.N for val in [self._point.S, self._point.E, self._point.I, self._point.R]]
+        weights = [val / self._point.N for val in [self._point.S, self._point.all_exposed, self._point.all_infected, self._point.R]]
         states = ['S', 'E', 'I', 'R']
 
         moving_states = choices(
@@ -71,8 +68,8 @@ class SEIR(GenericModel):
         infected_to_neighbours = moving_states_to_neighbours.count('I')
         infected_out_neighbours = moving_states_out_neighbours.count('I')
 
-        if infected_out_neighbours + infected_to_neighbours > self._point.I:
-            difference = infected_out_neighbours + infected_to_neighbours - self._point.I
+        if infected_out_neighbours + infected_to_neighbours > self._point.all_infected:
+            difference = infected_out_neighbours + infected_to_neighbours - self._point.all_infected
             half_of_difference = difference / 2
 
             infected_out_neighbours -= ceil(half_of_difference)

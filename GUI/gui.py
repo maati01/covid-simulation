@@ -109,8 +109,8 @@ class GUI(arcade.Window):
     # TODO z jakiegos powodu musze tutaj mnozyc, bo przy zapisywaniu arraya spowalnia program
     def update_counters(self, point: Point):
         self.susceptible_cnt += point.S * (self.scale ** 2)
-        self.exposed_cnt += point.E * (self.scale ** 2)
-        self.infective_cnt += point.I * (self.scale ** 2)
+        self.exposed_cnt += point.all_exposed * (self.scale ** 2)
+        self.infective_cnt += point.all_infected * (self.scale ** 2)
         self.recovered_cnt += point.R * (self.scale ** 2)
 
     def update_text(self):
@@ -167,8 +167,8 @@ class GUI(arcade.Window):
         self.reset_counters()
 
         for point in self.points.values():
-            if point.I > 0:
-                idx = int((point.I / point.N) * 255)
+            if point.all_infected > 0:
+                idx = int((point.all_infected / point.N) * 255)
                 new_color = tuple([val * 255 for val in self.color_bar_list[idx]])
                 self.grid_sprites[point.x][point.y].color = new_color
             self.update_counters(point)
@@ -204,7 +204,7 @@ class GUI(arcade.Window):
         x = self.x_size - int(y // self.scale)
         y = int(temp // self.scale)
 
-        self.points[x, y].I = self.points[(x, y)].N
+        self.points[x, y].I[0] = self.points[(x, y)].N
         self.points[x, y].S = 0
 
         self.grid_sprites[x][y].color = arcade.color.RED
