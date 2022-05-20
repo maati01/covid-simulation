@@ -5,8 +5,8 @@ from math import ceil, floor
 
 # Italy params from link below
 kappa = 0.012
-gamma = 0.017
-beta = 0.22
+gamma = 0.4
+beta = 0.69
 
 
 # http://web.pdx.edu/~gjay/teaching/mth271_2020/html/09_SEIR_model.html
@@ -27,15 +27,16 @@ class SEIR(GenericModel):
         i_able_to_recover, e_able_to_infected = self._point.I[-1], self._point.E[-1]
         n, i = [p + self._point.arrived_infected for p in (self._point.N, sum(self._point.I))]
         s_div_n = self._point.S / n
-        e, r = sum(self._point.E), self._point.R
 
         beta_i_s_div_n, gamma_e, gamma_and_kappa_I = \
             round(beta * i * s_div_n), round(gamma * e_able_to_infected), round((gamma + kappa) * i_able_to_recover)
 
-        delta_s, delta_e, delta_i, delta_r = (
+        delta_s, new_e, delta_e, new_i, delta_i, delta_r = (
             -beta_i_s_div_n,
-            beta_i_s_div_n - gamma_e,
-            gamma_e - gamma_and_kappa_I,
+            beta_i_s_div_n,
+            -gamma_e,
+            gamma_e,
+            -gamma_and_kappa_I,
             gamma_and_kappa_I
         )
 
@@ -44,15 +45,15 @@ class SEIR(GenericModel):
         self._point.I[-1] += delta_i
         self._point.R += delta_r
         self._point.arrived_infected = 0
-        self._point.move_lists_stats()
-
+        self._point.move_lists_stats(new_e, new_i)
 
     def get_moving_I_people(self):
         """getting number of moving infected people"""
         people_to_move = round(self._point.N * self._point.move_probability)
         to_neighbours = round(people_to_move * self._point.neighbours_move_probability)
 
-        weights = [val / self._point.N for val in [self._point.S, self._point.all_exposed, self._point.all_infected, self._point.R]]
+        weights = [val / self._point.N for val in
+                   [self._point.S, self._point.all_exposed, self._point.all_infected, self._point.R]]
         states = ['S', 'E', 'I', 'R']
 
         moving_states = choices(

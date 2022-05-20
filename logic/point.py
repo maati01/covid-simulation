@@ -24,22 +24,25 @@ class Point:
         self.neighbours_move_probability = 0.95
         self.arrived_infected = 0
 
-    def move_lists_stats(self):
+    def move_lists_stats(self, new_e: int, new_i: int):
         """Method to move people in lists. Just to get they able to change state in the future"""
-        self.move_list_stats(self._E)
-        self.move_list_stats(self._I)
+        if self.all_infected > 0:
+            print("SIEMA POKAZUJE I: ", self._I)
+        self.move_list_stats(self._E, new_e)
+        self.move_list_stats(self._I, new_i)
 
     @staticmethod
-    def move_list_stats(list_to_update: list[int]):
+    def move_list_stats(list_to_update: list[int], new_in_state: int):
         """
         Method to move people in one list
         :param list_to_update: either self._E or self._I
+        :param new_in_state: people who just changed state
         """
         list_to_update[-1] += list_to_update[-2]
         for i in range(len(list_to_update) - 3, -1, -1):
             list_to_update[i + 1] = list_to_update[i]
 
-        list_to_update[0] = 0
+        list_to_update[0] = new_in_state
 
     @property
     def N(self):
@@ -72,10 +75,6 @@ class Point:
     @property
     def I(self):
         return self._I
-
-    @I.setter
-    def I(self, value):
-        self._I = value
 
     @property
     def all_infected(self):
