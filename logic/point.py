@@ -1,7 +1,6 @@
 class Point:
     def __init__(self, init_N: int, x: int, y: int, province: str = None, e_range: int = 2, i_range: int = 10):
         """
-
         :param init_N: number of people
         :param x: x coord
         :param y: y cord

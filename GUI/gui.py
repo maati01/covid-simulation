@@ -3,6 +3,8 @@ import arcade.gui
 import matplotlib
 import numpy as np
 from matplotlib.colors import ListedColormap
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 from logic.point import Point
 from logic.threads import SimulateThread
@@ -57,12 +59,18 @@ class GUI(arcade.Window):
         self.points = points
         self.all_cords = list(points.keys())
         self.day = 0
+        self.days = [0]
         self.text = f"Day: {self.day}"
 
         self.susceptible_cnt = 0
         self.exposed_cnt = 0
         self.infective_cnt = 0
         self.recovered_cnt = 0
+
+        self.susceptible_values = [0]
+        self.exposed_values = [0]
+        self.infective_values = [0]
+        self.recovered_values = [0]
 
         self.susceptible = f"susceptible: {self.susceptible_cnt}"
         self.exposed = f"exposed: {self.exposed_cnt}"
@@ -78,6 +86,9 @@ class GUI(arcade.Window):
 
         self._threads_num = threads_num
         self.initialize_grid()
+
+        self.graph = self.graph()
+
         arcade.schedule(self.simulate, 1)
 
     @staticmethod
@@ -89,6 +100,24 @@ class GUI(arcade.Window):
         color_list = cmap(distance_list)
 
         return color_list
+
+    def graph(self):
+        plt.style.use('fivethirtyeight')
+
+        def animate(i):
+            plt.cla()
+
+            plt.plot(self.days, self.susceptible_values, label='Susceptible')
+            plt.plot(self.days, self.exposed_values, label='Exposed')
+            plt.plot(self.days, self.infective_values, label='Infective')
+            plt.plot(self.days, self.recovered_values, label='Recovered')
+
+            plt.legend(loc='upper left')
+            plt.tight_layout()
+
+        ani = FuncAnimation(plt.gcf(), animate, interval=3000)
+
+        return ani
 
     def update_day(self):
         self.day += 1
@@ -125,6 +154,13 @@ class GUI(arcade.Window):
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
         arcade.draw_text(self.recovered, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING * 2,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+
+    def update_values(self):
+        self.susceptible_values.append(self.susceptible_cnt)
+        self.exposed_values.append(self.exposed_cnt)
+        self.infective_values.append(self.infective_cnt)
+        self.recovered_values.append(self.recovered_cnt)
+        self.days.append(self.day)
 
     def simulate(self, delta_time: float):
         if not self.is_running:
@@ -172,6 +208,8 @@ class GUI(arcade.Window):
                 new_color = tuple([val * 255 for val in self.color_bar_list[idx]])
                 self.grid_sprites[point.x][point.y].color = new_color
             self.update_counters(point)
+
+        self.update_values()
 
         # Batch draw all the sprites
 
