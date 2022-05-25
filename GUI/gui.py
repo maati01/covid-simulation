@@ -72,6 +72,8 @@ class GUI(arcade.Window):
         self.infective_values = [0]
         self.recovered_values = [0]
 
+        self.graph()
+
         self.susceptible = f"susceptible: {self.susceptible_cnt}"
         self.exposed = f"exposed: {self.exposed_cnt}"
         self.infective = f"infective: {self.infective_cnt}"
@@ -86,8 +88,6 @@ class GUI(arcade.Window):
 
         self._threads_num = threads_num
         self.initialize_grid()
-
-        self.graph = self.graph()
 
         arcade.schedule(self.simulate, 1)
 
@@ -117,7 +117,8 @@ class GUI(arcade.Window):
 
         ani = FuncAnimation(plt.gcf(), animate, interval=3000)
 
-        return ani
+        plt.tight_layout()
+        plt.show()
 
     def update_day(self):
         self.day += 1
