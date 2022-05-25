@@ -3,8 +3,7 @@ import arcade.gui
 import matplotlib
 import numpy as np
 from matplotlib.colors import ListedColormap
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+import csv
 
 from logic.point import Point
 from logic.threads import SimulateThread
@@ -59,7 +58,6 @@ class GUI(arcade.Window):
         self.points = points
         self.all_cords = list(points.keys())
         self.day = 0
-        self.days = [0]
         self.text = f"Day: {self.day}"
 
         self.susceptible_cnt = 0
@@ -67,17 +65,15 @@ class GUI(arcade.Window):
         self.infective_cnt = 0
         self.recovered_cnt = 0
 
-        self.susceptible_values = [0]
-        self.exposed_values = [0]
-        self.infective_values = [0]
-        self.recovered_values = [0]
-
-        self.graph()
-
         self.susceptible = f"susceptible: {self.susceptible_cnt}"
         self.exposed = f"exposed: {self.exposed_cnt}"
         self.infective = f"infective: {self.infective_cnt}"
         self.recovered = f"recovered: {self.recovered_cnt}"
+
+        self.fieldnames = ["Day", "Susceptible", "Exposed", "Infective", "Recovered"]
+        with open('statistics/data.csv', 'w') as csv_file:
+            csv_writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
+            csv_writer.writeheader()
 
         # Set the window's background color
         self.background_color = arcade.color.WHITE
@@ -100,25 +96,6 @@ class GUI(arcade.Window):
         color_list = cmap(distance_list)
 
         return color_list
-
-    def graph(self):
-        plt.style.use('fivethirtyeight')
-
-        def animate(i):
-            plt.cla()
-
-            plt.plot(self.days, self.susceptible_values, label='Susceptible')
-            plt.plot(self.days, self.exposed_values, label='Exposed')
-            plt.plot(self.days, self.infective_values, label='Infective')
-            plt.plot(self.days, self.recovered_values, label='Recovered')
-
-            plt.legend(loc='upper left')
-            plt.tight_layout()
-
-        ani = FuncAnimation(plt.gcf(), animate, interval=3000)
-
-        plt.tight_layout()
-        plt.show()
 
     def update_day(self):
         self.day += 1
@@ -156,12 +133,19 @@ class GUI(arcade.Window):
         arcade.draw_text(self.recovered, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING * 2,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
 
-    def update_values(self):
-        self.susceptible_values.append(self.susceptible_cnt)
-        self.exposed_values.append(self.exposed_cnt)
-        self.infective_values.append(self.infective_cnt)
-        self.recovered_values.append(self.recovered_cnt)
-        self.days.append(self.day)
+    def update_data_file(self):
+        with open('statistics/data.csv', 'w') as csv_file:
+            csv_writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
+
+            info = {
+                "Day": self.day,
+                "Susceptible": self.susceptible_cnt,
+                "Exposed": self.infective_cnt,
+                "Infective": self.infective_cnt,
+                "Recovered": self.recovered_cnt
+            }
+
+            csv_writer.writerow(info)
 
     def simulate(self, delta_time: float):
         if not self.is_running:
@@ -210,7 +194,7 @@ class GUI(arcade.Window):
                 self.grid_sprites[point.x][point.y].color = new_color
             self.update_counters(point)
 
-        self.update_values()
+        self.update_data_file()
 
         # Batch draw all the sprites
 
