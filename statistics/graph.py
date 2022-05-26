@@ -16,7 +16,7 @@ def graph():
 
         plt.cla()
 
-        plt.plot(day, susceptible, label='Susceptible')
+        # plt.plot(day, susceptible, label='Susceptible')
         plt.plot(day, exposed, label='Exposed')
         plt.plot(day, infective, label='Infective')
         plt.plot(day, recovered, label='Recovered')
@@ -24,7 +24,10 @@ def graph():
         plt.legend(loc='upper left')
         plt.tight_layout()
 
-    ani = FuncAnimation(plt.gcf(), animate, interval=3000)
+    ani = FuncAnimation(plt.gcf(), animate, interval=1000)
 
     plt.tight_layout()
     plt.show()
+
+
+graph()
