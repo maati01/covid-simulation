@@ -4,6 +4,8 @@ from GUI.gui import GUI
 from logic.point import Point
 from logic.SEIR import SEIR
 from helper.config import set_mode
+import statistics.graph as g
+from threading import Thread
 
 
 class Engine:
@@ -16,7 +18,9 @@ class Engine:
         # TODO macierz pointow
         # TODO initial chorzy
         # TODO run and check
-        arcade.run()
+
+        Thread(target=g.graph()).start()
+        Thread(target=arcade.run()).start()
 
     def _create_matrix_of_points(self, path: str):
         populations = np.load(path)

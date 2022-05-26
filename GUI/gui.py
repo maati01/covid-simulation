@@ -134,13 +134,13 @@ class GUI(arcade.Window):
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
 
     def update_data_file(self):
-        with open('statistics/data.csv', 'w') as csv_file:
+        with open('statistics/data.csv', 'a') as csv_file:
             csv_writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
 
             info = {
                 "Day": self.day,
                 "Susceptible": self.susceptible_cnt,
-                "Exposed": self.infective_cnt,
+                "Exposed": self.exposed_cnt,
                 "Infective": self.infective_cnt,
                 "Recovered": self.recovered_cnt
             }
@@ -173,6 +173,7 @@ class GUI(arcade.Window):
         SimulateThread.all_threads_finished_moving = False
         self.update_day()
         self.update_info()
+        self.update_data_file()
 
     def on_draw(self) -> None:
         """
@@ -193,8 +194,6 @@ class GUI(arcade.Window):
                 new_color = tuple([val * 255 for val in self.color_bar_list[idx]])
                 self.grid_sprites[point.x][point.y].color = new_color
             self.update_counters(point)
-
-        self.update_data_file()
 
         # Batch draw all the sprites
 

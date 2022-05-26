@@ -3,11 +3,11 @@ from matplotlib.animation import FuncAnimation
 import pandas as pd
 
 
-def graph(self):
+def graph():
     plt.style.use('fivethirtyeight')
 
     def animate(i):
-        data = pd.read_csv('data.csv')
+        data = pd.read_csv('statistics/data.csv')
         day = data['Day']
         susceptible = data['Susceptible']
         exposed = data['Exposed']
@@ -28,5 +28,3 @@ def graph(self):
 
     plt.tight_layout()
     plt.show()
-
-    return ani
