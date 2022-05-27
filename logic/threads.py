@@ -49,7 +49,6 @@ class GraphRunner(threading.Thread):
         self._stop.set()
 
     def animate(self, i):
-        print(self.stop)
         if self.stop:
             self.ani.event_source.stop()
 
@@ -72,6 +71,6 @@ class GraphRunner(threading.Thread):
 
     def run(self):
         plt.style.use('fivethirtyeight')
-        self.ani = FuncAnimation(plt.gcf(), self.animate, interval=1000)
+        self.ani = FuncAnimation(plt.gcf(), self.animate, interval=500)
         plt.tight_layout()
         plt.show()
