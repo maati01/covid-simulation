@@ -88,10 +88,6 @@ class GUI(arcade.Window):
 
         arcade.schedule(self.simulate, 1)
 
-        # # Run plots
-        # print(os.getcwd())
-        # #os.system()
-
 
     @staticmethod
     def _create_color_bar():
