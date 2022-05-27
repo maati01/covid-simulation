@@ -45,7 +45,11 @@ class SimulateThread(threading.Thread):
 class GraphRunner(threading.Thread):
     stop = False
 
+    def kill(self):
+        self._stop.set()
+
     def animate(self, i):
+        print(self.stop)
         if self.stop:
             self.ani.event_source.stop()
 
