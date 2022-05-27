@@ -4,6 +4,7 @@ import matplotlib
 import numpy as np
 from matplotlib.colors import ListedColormap
 import csv
+import os
 
 from logic.point import Point
 from logic.threads import SimulateThread
@@ -87,6 +88,11 @@ class GUI(arcade.Window):
 
         arcade.schedule(self.simulate, 1)
 
+        # # Run plots
+        # print(os.getcwd())
+        # #os.system()
+
+
     @staticmethod
     def _create_color_bar():
         cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue", "yellow", "red"])
@@ -123,7 +129,6 @@ class GUI(arcade.Window):
     def update_text(self):
         arcade.draw_text(self.text, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH, 'left')
-
         arcade.draw_text(self.susceptible, self.y_size * self.scale, self.x_size * self.scale + TEXT_PADDING,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
         arcade.draw_text(self.exposed, self.y_size * self.scale, self.x_size * self.scale,

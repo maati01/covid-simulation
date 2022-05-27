@@ -30,4 +30,4 @@ def graph():
     plt.show()
 
 
-graph()
+#graph()
