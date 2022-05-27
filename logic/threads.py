@@ -3,7 +3,9 @@ import threading
 from logic.point import Point
 from random import choices
 from collections import Counter
-
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import pandas as pd
 
 class SimulateThread(threading.Thread):
     all_threads_finished_moving = False
@@ -38,3 +40,37 @@ class SimulateThread(threading.Thread):
 
         for cord in self._reduced_cords:
             self._points[cord].simulate()
+
+
+class GraphRunner(threading.Thread):
+    stop = False
+
+    def kill(self):
+        self._stop.set()
+
+    def animate(self, i):
+        if self.stop:
+            self.ani.event_source.stop()
+
+        data = pd.read_csv('statistics/data.csv')
+        day = data['Day']
+        susceptible = data['Susceptible']
+        exposed = data['Exposed']
+        infective = data['Infective']
+        recovered = data['Recovered']
+
+        plt.cla()
+
+        # plt.plot(day, susceptible, label='Susceptible')
+        plt.plot(day, exposed, label='Exposed')
+        plt.plot(day, infective, label='Infective')
+        plt.plot(day, recovered, label='Recovered')
+
+        plt.legend(loc='upper left')
+        plt.tight_layout()
+
+    def run(self):
+        plt.style.use('fivethirtyeight')
+        self.ani = FuncAnimation(plt.gcf(), self.animate, interval=500)
+        plt.tight_layout()
+        plt.show()

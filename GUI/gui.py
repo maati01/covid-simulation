@@ -3,6 +3,8 @@ import arcade.gui
 import matplotlib
 import numpy as np
 from matplotlib.colors import ListedColormap
+import csv
+import os
 
 from logic.point import Point
 from logic.threads import SimulateThread
@@ -69,6 +71,11 @@ class GUI(arcade.Window):
         self.infective = f"infective: {self.infective_cnt}"
         self.recovered = f"recovered: {self.recovered_cnt}"
 
+        self.fieldnames = ["Day", "Susceptible", "Exposed", "Infective", "Recovered"]
+        with open('statistics/data.csv', 'w') as csv_file:
+            csv_writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
+            csv_writer.writeheader()
+
         # Set the window's background color
         self.background_color = arcade.color.WHITE
         # Create a spritelist for batch drawing all the grid sprites
@@ -78,7 +85,9 @@ class GUI(arcade.Window):
 
         self._threads_num = threads_num
         self.initialize_grid()
+
         arcade.schedule(self.simulate, 1)
+
 
     @staticmethod
     def _create_color_bar():
@@ -116,7 +125,6 @@ class GUI(arcade.Window):
     def update_text(self):
         arcade.draw_text(self.text, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH, 'left')
-
         arcade.draw_text(self.susceptible, self.y_size * self.scale, self.x_size * self.scale + TEXT_PADDING,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
         arcade.draw_text(self.exposed, self.y_size * self.scale, self.x_size * self.scale,
@@ -125,6 +133,20 @@ class GUI(arcade.Window):
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
         arcade.draw_text(self.recovered, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING * 2,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+
+    def update_data_file(self):
+        with open('statistics/data.csv', 'a') as csv_file:
+            csv_writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
+
+            info = {
+                "Day": self.day,
+                "Susceptible": self.susceptible_cnt,
+                "Exposed": self.exposed_cnt,
+                "Infective": self.infective_cnt,
+                "Recovered": self.recovered_cnt
+            }
+
+            csv_writer.writerow(info)
 
     def simulate(self, delta_time: float):
         if not self.is_running:
@@ -152,6 +174,7 @@ class GUI(arcade.Window):
         SimulateThread.all_threads_finished_moving = False
         self.update_day()
         self.update_info()
+        self.update_data_file()
 
     def on_draw(self) -> None:
         """

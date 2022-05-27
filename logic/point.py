@@ -1,7 +1,6 @@
 class Point:
     def __init__(self, init_N: int, x: int, y: int, province: str = None, e_range: int = 2, i_range: int = 10):
         """
-
         :param init_N: number of people
         :param x: x coord
         :param y: y cord
@@ -26,8 +25,6 @@ class Point:
 
     def move_lists_stats(self, new_e: int, new_i: int):
         """Method to move people in lists. Just to get they able to change state in the future"""
-        if self.all_infected > 0:
-            print("SIEMA POKAZUJE I: ", self._I)
         self.move_list_stats(self._E, new_e)
         self.move_list_stats(self._I, new_i)
 
