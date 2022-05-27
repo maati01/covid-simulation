@@ -227,10 +227,11 @@ class GUI(arcade.Window):
         x = self.x_size - int(y // self.scale)
         y = int(temp // self.scale)
 
-        self.points[x, y].I[0] = self.points[(x, y)].N
-        self.points[x, y].S = 0
+        if self.points[x, y].S > 0:
+            self.points[x, y].I[0] += 1
+            self.points[x, y].S -= 1
 
-        self.grid_sprites[x][y].color = arcade.color.RED
+        self.grid_sprites[x][y].color = arcade.color.SMOKY_BLACK
 
     def on_button_click(self, event):
         """
