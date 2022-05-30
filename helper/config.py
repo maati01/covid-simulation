@@ -2,7 +2,6 @@ import argparse
 
 PATH_TO_BIG_POPULATION_ARRAY = "data/big_population_array.npy"
 PATH_TO_SMALL_POPULATION_ARRAY = "data/small_population_array.npy"
-TEST_PATH_TO_SMALL_POPULATION_ARRAY = "data/test_small_population_array.npy"
 
 PATH_TO_BIG_BINARY_ARRAY = "data/big_binary_array.npy"
 PATH_TO_SMALL_BINARY_ARRAY = "data/small_binary_array.npy"
@@ -16,5 +15,5 @@ def set_mode():
     args = parser.parse_args()
 
     if args.size == "small":
-        return 4, PATH_TO_SMALL_BINARY_ARRAY, TEST_PATH_TO_SMALL_POPULATION_ARRAY, PATH_TO_EXTENDED_COLOR_BAR
+        return 4, PATH_TO_SMALL_BINARY_ARRAY, PATH_TO_SMALL_POPULATION_ARRAY, PATH_TO_EXTENDED_COLOR_BAR
     return 1, PATH_TO_BIG_BINARY_ARRAY, PATH_TO_BIG_POPULATION_ARRAY, PATH_TO_COLOR_BAR

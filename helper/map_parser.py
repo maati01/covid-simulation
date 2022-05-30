@@ -8,7 +8,6 @@ PATH_TO_JSON = "data/value_to_population.json"
 
 PATH_TO_BIG_POPULATION_ARRAY = "data/big_population_array.npy"
 PATH_TO_SMALL_POPULATION_ARRAY = "data/small_population_array.npy"
-TEST_PATH_TO_SMALL_POPULATION_ARRAY = "data/test_small_population_array.npy"
 
 PATH_TO_BIG_BINARY_ARRAY = "data/big_binary_array.npy"
 PATH_TO_SMALL_BINARY_ARRAY = "data/small_binary_array.npy"
@@ -34,21 +33,11 @@ def resize_and_save_array(scale: int) -> None:
 
     np.save(PATH_TO_SMALL_BINARY_ARRAY, small_binary_array)
 
-    # small_population_array = population_array.reshape(
-    #     [new_row_size, row_size // new_row_size, new_column_size, column_size // new_column_size]).mean(3).mean(1)
-    # small_population_array = small_population_array.astype(np.int32)
-
-    small_population_array = np.zeros((new_row_size, new_column_size))
-
-    for i in range(0, row_size, scale):
-        for j in range(0, column_size, scale):
-            for x in range(i, i + scale):
-                for y in range(j, j + scale):
-                    small_population_array[i % scale, j % scale] += population_array[x, y]
-
+    small_population_array = population_array.reshape(
+        [new_row_size, row_size // new_row_size, new_column_size, column_size // new_column_size]).mean(3).mean(1)
     small_population_array = small_population_array.astype(np.int32)
 
-    np.save(TEST_PATH_TO_SMALL_POPULATION_ARRAY, small_population_array)
+    np.save(PATH_TO_SMALL_POPULATION_ARRAY, small_population_array)
 
 
 def convert_img_to_population_map(path: str, value_to_population: dict[tuple[int, int]: int]) -> None:
@@ -72,13 +61,11 @@ def convert_img_to_population_map(path: str, value_to_population: dict[tuple[int
 
 
 if __name__ == "__main__":
-    # value_to_population = {val: int(((MAX_VALUE_IN_ARRAY - val) / MAX_VALUE_IN_ARRAY) * MAX_POPULATION) for val in
-    #                        range(0, 256)}
-    #
-    # convert_img_to_population_map(PATH_TO_MAP, value_to_population)
-    # resize_and_save_array(SCALE)
-    #
-    # with open(PATH_TO_JSON, "w") as outfile:
-    #     json.dump(value_to_population, outfile)
+    value_to_population = {val: int(((MAX_VALUE_IN_ARRAY - val) / MAX_VALUE_IN_ARRAY) * MAX_POPULATION) for val in
+                           range(0, 256)}
 
+    convert_img_to_population_map(PATH_TO_MAP, value_to_population)
     resize_and_save_array(SCALE)
+
+    with open(PATH_TO_JSON, "w") as outfile:
+        json.dump(value_to_population, outfile)
