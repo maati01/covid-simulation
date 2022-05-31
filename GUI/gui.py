@@ -25,7 +25,8 @@ class GUI(arcade.Window):
     Main application class.
     """
 
-    def __init__(self, path_to_array: str, path_to_color_bar: str, points: dict[tuple[int, int], Point], threads_num=8, scale=1):
+    def __init__(self, path_to_array: str, path_to_color_bar: str, points: dict[tuple[int, int], Point], threads_num=8,
+                 scale=1):
         """
         Set up the application.
         """
@@ -114,7 +115,6 @@ class GUI(arcade.Window):
         self.infected_cnt = 0
         self.recovered_cnt = 0
 
-    # TODO z jakiegos powodu musze tutaj mnozyc, bo przy zapisywaniu arraya spowalnia program
     def update_counters(self, point: Point):
         self.susceptible_cnt += point.S
         self.exposed_cnt += point.all_exposed
@@ -193,6 +193,8 @@ class GUI(arcade.Window):
                 idx = int((point.all_infected / point.N) * 255)
                 new_color = tuple([val * 255 for val in self.color_bar_list[idx]])
                 self.grid_sprites[point.x][point.y].color = new_color
+            elif point.all_infected == 0:
+                self.grid_sprites[point.x][point.y].color = (0, self.map[point.x, point.y], 0)
             self.update_counters(point)
 
         # Batch draw all the sprites

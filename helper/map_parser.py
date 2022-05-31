@@ -18,7 +18,7 @@ SCALE = 4
 
 def resize_and_save_array(scale: int) -> None:
     """
-    Convert the array to a smaller size and save to file.
+    Converts the array to a smaller size and save to file.
     """
     binary_array = np.load(PATH_TO_BIG_BINARY_ARRAY)
     population_array = np.load(PATH_TO_BIG_POPULATION_ARRAY)
@@ -42,7 +42,7 @@ def resize_and_save_array(scale: int) -> None:
 
 def convert_img_to_population_map(path: str, value_to_population: dict[tuple[int, int]: int]) -> None:
     """
-    Convert image to population map and save to file.
+    Converts image to population map and save to file.
     """
 
     img = Image.open(path)
