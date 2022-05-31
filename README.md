@@ -1,7 +1,8 @@
 # covid-simulation
 
 ## FIRST RUN
-`python helper/map_parser.py`
+`python helper/map_parser.py` \
+`python helper/color_bar_generator.py`
 
 ## RUN APP
 `python run.py` \

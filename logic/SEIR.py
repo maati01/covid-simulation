@@ -1,11 +1,15 @@
+import random
+
 from logic.point import Point
 from abc import ABC, abstractmethod
 from random import choices, shuffle
 from math import ceil, floor
 
-beta = 0.45
-sigma = 0.1
-gamma = 0.1
+# Italy params from link below
+kappa = 0.012
+gamma = 0.4
+beta = 0.69
+
 
 # http://web.pdx.edu/~gjay/teaching/mth271_2020/html/09_SEIR_model.html
 class GenericModel(ABC):
@@ -18,49 +22,47 @@ class GenericModel(ABC):
         pass
 
 
+# https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7277829/#:~:text=The%20classical%20SEIR%20model%20can%20be%20described%20by%20a%20series%20of%20ordinary%20differential%20equations%3A
 class SEIR(GenericModel):
     def simulate(self):
         """Func to simulate point with SEIR model"""
-        n = self._point.N + self._point.arrived_infected
-        s, e, i, r = [val / n for val in
-                      (self._point.S, self._point.E, self._point.I + self._point.arrived_infected, self._point.R)]
+        i_able_to_recover, e_able_to_infected = self._point.I[-1], self._point.E[-1]
+        n, i = [p + self._point.arrived_infected for p in (self._point.N, sum(self._point.I))]
+        s_div_n = self._point.S / n
 
-        new_s = self._point.S - beta * i * s
-        new_e = self._point.E + (beta * i * s - sigma * e)
-        new_i = self._point.I + sigma * e - gamma * i
-        new_r = self._point.R + gamma * i
+        round_func = floor if random.random() > 0.5 else ceil
+        beta_i_s_div_n, gamma_e, gamma_and_kappa_I = \
+            round_func(beta * i * s_div_n), round_func(gamma * e_able_to_infected), round_func((gamma + kappa) * i_able_to_recover)
 
-        if new_i < self._point.arrived_infected:
-            diff = self._point.arrived_infected - new_i
-            new_i += diff
-            new_r -= diff
-
-        self._point.S, self._point.E, self._point.I, self._point.R = new_s, new_e, new_i, new_r
-        self._point.arrived_infected = 0
-
-    def get_moving_I_people(self):
-        """getting number of moving infected people"""
-        people_to_move = round(self._point.N * self._point.move_probability)
-        to_neighbours = round(people_to_move * self._point.neighbours_move_probability)
-
-        moving_states = choices(
-            ['S', 'E', 'I', 'R'],
-            [val / self._point.N for val in [self._point.S, self._point.E, self._point.I, self._point.R]],
-            k=people_to_move
+        delta_s, new_e, delta_e, new_i, delta_i, delta_r = (
+            -beta_i_s_div_n,
+            beta_i_s_div_n,
+            -gamma_e,
+            gamma_e,
+            -gamma_and_kappa_I,
+            gamma_and_kappa_I
         )
 
-        shuffle(moving_states)
-        moving_states_to_neighbours = moving_states[:to_neighbours]
-        moving_states_out_neighbours = moving_states[to_neighbours:]
+        self._point.S += delta_s
+        self._point.E[-1] += delta_e
+        self._point.I[-1] += delta_i
+        self._point.R += delta_r
+        self._point.arrived_infected = 0
+        self._point.move_lists_stats(new_e, new_i)
 
-        infected_to_neighbours = moving_states_to_neighbours.count('I')
-        infected_out_neighbours = moving_states_out_neighbours.count('I')
+    def get_moving_infected_people(self):
+        """getting number of moving infected people"""
 
-        if infected_out_neighbours + infected_to_neighbours > self._point.I:
-            difference = infected_out_neighbours + infected_to_neighbours - self._point.I
-            half_of_difference = difference / 2
+        infected_to_move = round(self._point.all_infected * random.uniform(0.01, 0.3))
 
-            infected_out_neighbours -= ceil(half_of_difference)
-            infected_to_neighbours -= floor(half_of_difference)
+        infected_to_neighbours = round(infected_to_move * self._point.neighbours_move_probability)
+        infected_out_neighbours = infected_to_move - infected_to_neighbours
+
+        # liczenie czy faktycznie ida out_neighbours
+        rand = random.random()
+        if rand > 0.5:
+            infected_out_neighbours = 0
+        elif rand > 0.1:
+            infected_out_neighbours = round(infected_out_neighbours * random.uniform(0, 0.7))
 
         return infected_to_neighbours, infected_out_neighbours
