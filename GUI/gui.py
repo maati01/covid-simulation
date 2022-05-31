@@ -63,15 +63,15 @@ class GUI(arcade.Window):
 
         self.susceptible_cnt = 0
         self.exposed_cnt = 0
-        self.infective_cnt = 0
+        self.infected_cnt = 0
         self.recovered_cnt = 0
 
         self.susceptible = f"susceptible: {self.susceptible_cnt}"
         self.exposed = f"exposed: {self.exposed_cnt}"
-        self.infective = f"infective: {self.infective_cnt}"
+        self.infected = f"infected: {self.infected_cnt}"
         self.recovered = f"recovered: {self.recovered_cnt}"
 
-        self.fieldnames = ["Day", "Susceptible", "Exposed", "Infective", "Recovered"]
+        self.fieldnames = ["Day", "Susceptible", "Exposed", "Infected", "Recovered"]
         with open('statistics/data.csv', 'w') as csv_file:
             csv_writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
             csv_writer.writeheader()
@@ -87,7 +87,6 @@ class GUI(arcade.Window):
         self.initialize_grid()
 
         arcade.schedule(self.simulate, 1)
-
 
     @staticmethod
     def _create_color_bar():
@@ -106,20 +105,20 @@ class GUI(arcade.Window):
     def update_info(self):
         self.susceptible = f"susceptible: {self.susceptible_cnt}"
         self.exposed = f"exposed: {self.exposed_cnt}"
-        self.infective = f"infective: {self.infective_cnt}"
+        self.infected = f"infected: {self.infected_cnt}"
         self.recovered = f"recovered: {self.recovered_cnt}"
 
     def reset_counters(self):
         self.susceptible_cnt = 0
         self.exposed_cnt = 0
-        self.infective_cnt = 0
+        self.infected_cnt = 0
         self.recovered_cnt = 0
 
     # TODO z jakiegos powodu musze tutaj mnozyc, bo przy zapisywaniu arraya spowalnia program
     def update_counters(self, point: Point):
         self.susceptible_cnt += point.S
         self.exposed_cnt += point.all_exposed
-        self.infective_cnt += point.all_infected
+        self.infected_cnt += point.all_infected
         self.recovered_cnt += point.R
 
     def update_text(self):
@@ -129,7 +128,7 @@ class GUI(arcade.Window):
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
         arcade.draw_text(self.exposed, self.y_size * self.scale, self.x_size * self.scale,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
-        arcade.draw_text(self.infective, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING,
+        arcade.draw_text(self.infected, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
         arcade.draw_text(self.recovered, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING * 2,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
@@ -142,7 +141,7 @@ class GUI(arcade.Window):
                 "Day": self.day,
                 "Susceptible": self.susceptible_cnt,
                 "Exposed": self.exposed_cnt,
-                "Infective": self.infective_cnt,
+                "Infected": self.infected_cnt,
                 "Recovered": self.recovered_cnt
             }
 

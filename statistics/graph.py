@@ -11,14 +11,14 @@ def graph():
         day = data['Day']
         susceptible = data['Susceptible']
         exposed = data['Exposed']
-        infective = data['Infective']
+        infective = data['Infected']
         recovered = data['Recovered']
 
         plt.cla()
 
         # plt.plot(day, susceptible, label='Susceptible')
         plt.plot(day, exposed, label='Exposed')
-        plt.plot(day, infective, label='Infective')
+        plt.plot(day, infective, label='Infected')
         plt.plot(day, recovered, label='Recovered')
 
         plt.legend(loc='upper left')

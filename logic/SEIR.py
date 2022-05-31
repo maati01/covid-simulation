@@ -1,3 +1,5 @@
+import random
+
 from logic.point import Point
 from abc import ABC, abstractmethod
 from random import choices, shuffle
@@ -47,45 +49,19 @@ class SEIR(GenericModel):
         self._point.arrived_infected = 0
         self._point.move_lists_stats(new_e, new_i)
 
-    def get_moving_I_people(self):
+    def get_moving_infected_people(self):
         """getting number of moving infected people"""
         people_to_move = round(self._point.N * self._point.move_probability)
-        to_neighbours = round(people_to_move * self._point.neighbours_move_probability)
 
-        weights = [val / self._point.N for val in
-                   [self._point.S, self._point.all_exposed, self._point.all_infected, self._point.R]]
-        states = ['S', 'E', 'I', 'R']
+        # wyliczyc ile chorych ucieka
+        infected_to_move = round(self._point.all_infected * random.uniform(0.01, 0.05))
 
-        moving_states = choices(
-            [states[i] for i in range(len(states)) if weights[i] > 0],
-            [weight for weight in weights if weight > 0],
-            k=people_to_move
-        )
+        # podzielic na to_neighbours, out_neighbours
+        infected_to_neighbours = round(infected_to_move * self._point.neighbours_move_probability)
+        infected_out_neighbours = infected_to_move - infected_to_neighbours
 
-        shuffle(moving_states)
-        moving_states_to_neighbours = moving_states[:to_neighbours]
-        moving_states_out_neighbours = moving_states[to_neighbours:]
-
-        infected_to_neighbours = moving_states_to_neighbours.count('I')
-        infected_out_neighbours = moving_states_out_neighbours.count('I')
-
-        if infected_out_neighbours + infected_to_neighbours > self._point.all_infected:
-            difference = infected_out_neighbours + infected_to_neighbours - self._point.all_infected
-            half_of_difference = difference / 2
-
-            infected_out_neighbours -= ceil(half_of_difference)
-            infected_to_neighbours -= floor(half_of_difference)
-
-            if infected_out_neighbours <= 0:
-                infected_to_neighbours += infected_out_neighbours
-                infected_out_neighbours = 0
-                if infected_to_neighbours > 0:
-                    out_of_to_neighbours = round((1 - self._point.neighbours_move_probability) * infected_to_neighbours)
-                    infected_to_neighbours -= out_of_to_neighbours
-                    infected_out_neighbours += out_of_to_neighbours
-                else:
-                    infected_to_neighbours = 0
-            elif infected_to_neighbours < 0:
-                infected_to_neighbours, infected_out_neighbours = infected_out_neighbours, 0
+        # liczenie czy faktycznie ida out_neighbours
+        if random.random() > 0.3:
+            infected_out_neighbours = 0
 
         return infected_to_neighbours, infected_out_neighbours
