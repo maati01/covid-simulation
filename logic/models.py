@@ -1,16 +1,17 @@
-import random
-
 from logic.point import Point
 from abc import ABC, abstractmethod
 from math import ceil, floor
+import random
 
 
+# https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7277829/#:~:text=The%20classical%20SEIR%20model%20can%20be%20described%20by%20a%20series%20of%20ordinary%20differential%20equations%3A
 # http://web.pdx.edu/~gjay/teaching/mth271_2020/html/09_SEIR_model.html
 class GenericModel(ABC):
-    kappa = 0.7     # for getting recovered
-    gamma = 0.4     # for getting infected
-    beta = 0.69     # for getting exposed
-    alpha = 0.02    # for getting quarantined
+    kappa = 0.7  # for getting recovered
+    gamma = 0.4  # for getting infected
+    beta = 0.69  # for getting exposed
+    alpha = 0.02  # for getting quarantined
+    theta = 0.001  # for getting dead
 
     def __init__(self, point: Point):
         self._point = point
@@ -40,8 +41,11 @@ class GenericModel(ABC):
         for (stage, val) in zip(list_to_update, vals):
             stage -= val
 
+    @staticmethod
+    def _get_round_func():
+        return floor if random.random() > 0.5 else ceil
 
-# https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7277829/#:~:text=The%20classical%20SEIR%20model%20can%20be%20described%20by%20a%20series%20of%20ordinary%20differential%20equations%3A
+
 class SEIR(GenericModel):
     def simulate(self):
         """Func to simulate point with SEIR model"""
@@ -49,7 +53,7 @@ class SEIR(GenericModel):
         n, i = [p + self._point.arrived_infected for p in (self._point.N, sum(self._point.I))]
         s_div_n = self._point.S / n
 
-        round_func = floor if random.random() > 0.5 else ceil
+        round_func = self._get_round_func()
         beta_i_s_div_n, gamma_e, kappa_i = (
             round_func(self.beta * i * s_div_n),
             round_func(self.gamma * e_able_to_infected),
@@ -80,7 +84,7 @@ class SEIQR(GenericModel):
         n, i = [p + self._point.arrived_infected for p in (self._point.N, sum(self._point.I))]
         s_div_n, q_able_to_recover = self._point.S / n, self._point.Q[-1]
 
-        round_func = floor if random.random() > 0.5 else ceil
+        round_func = self._get_round_func()
         beta_i_s_div_n, gamma_e, kappa_i, kappa_q = (
             round_func(self.beta * i * s_div_n),
             round_func(self.gamma * e_able_to_infected),
@@ -100,7 +104,8 @@ class SEIQR(GenericModel):
         )
 
         q_from_i_per_stage = [round_func(self.alpha * self._point.I[i]) for i in range(len(self._point.I))]
-        self._reduce_stages(self._point.Q, q_from_i_per_stage)
+
+        self._reduce_stages(self._point.I, q_from_i_per_stage)
         self._point.S += delta_s
         self._point.E[-1] += delta_e
         self._point.I[-1] += delta_i
@@ -108,4 +113,46 @@ class SEIQR(GenericModel):
         self._point.R += new_r
         self._point.move_lists_stats(new_e, new_i, sum(q_from_i_per_stage))
 
+        self._point.arrived_infected = 0
+
+
+class SEIQRD(GenericModel):
+    def simulate(self):
+        """Func to simulate point with SEIQRD model"""
+        i_able_to_recover, e_able_to_infected = self._point.I[-1], self._point.E[-1]
+        n, i = [p + self._point.arrived_infected for p in (self._point.N, sum(self._point.I))]
+        s_div_n, q_able_to_recover = self._point.S / n, self._point.Q[-1]
+
+        round_func = self._get_round_func()
+        beta_i_s_div_n, gamma_e, kappa_i, kappa_q = (
+            round_func(self.beta * i * s_div_n),
+            round_func(self.gamma * e_able_to_infected),
+            round_func(self.kappa * i_able_to_recover),
+            round_func(self.kappa * q_able_to_recover),
+        )
+
+        delta_s, new_e, delta_e, new_i, delta_i, new_r, delta_q, new_q = (
+            -beta_i_s_div_n,
+            beta_i_s_div_n,
+            -gamma_e,
+            gamma_e,
+            -kappa_i,
+            kappa_i,
+            -kappa_q,
+            kappa_q
+        )
+
+        q_from_i_per_stage = [round_func(self.alpha * self._point.I[i]) for i in range(len(self._point.I))]
+        d_from_q_per_stage = [round_func(self.theta * self._point.Q[i]) for i in range(len(self._point.Q))]
+
+        self._reduce_stages(self._point.Q, d_from_q_per_stage)
+        self._reduce_stages(self._point.I, q_from_i_per_stage)
+        self._point.S += delta_s
+        self._point.E[-1] += delta_e
+        self._point.I[-1] += delta_i
+        self._point.Q[-1] += delta_q
+        self._point.R += new_r
+        self._point.D += sum(d_from_q_per_stage)
+
+        self._point.move_lists_stats(new_e, new_i, sum(q_from_i_per_stage))
         self._point.arrived_infected = 0

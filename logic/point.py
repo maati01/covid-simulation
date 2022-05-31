@@ -20,6 +20,7 @@ class Point:
         self._I = [0 for _ in range(i_range)]
         self._Q = [0 for _ in range(q_range)]
         self._R = 0
+        self._D = 0
         self._neighbours = list()
         self.move_probability = 0.8
         self.neighbours_move_probability = 0.95
@@ -97,6 +98,14 @@ class Point:
     @R.setter
     def R(self, value):
         self._R = value
+
+    @property
+    def D(self):
+        return self._D
+
+    @D.setter
+    def D(self, value):
+        self._D = value
 
     @property
     def model(self):
