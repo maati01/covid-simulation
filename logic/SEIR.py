@@ -30,8 +30,9 @@ class SEIR(GenericModel):
         n, i = [p + self._point.arrived_infected for p in (self._point.N, sum(self._point.I))]
         s_div_n = self._point.S / n
 
+        round_func = floor if random.random() > 0.5 else ceil
         beta_i_s_div_n, gamma_e, gamma_and_kappa_I = \
-            round(beta * i * s_div_n), round(gamma * e_able_to_infected), round((gamma + kappa) * i_able_to_recover)
+            round_func(beta * i * s_div_n), round_func(gamma * e_able_to_infected), round_func((gamma + kappa) * i_able_to_recover)
 
         delta_s, new_e, delta_e, new_i, delta_i, delta_r = (
             -beta_i_s_div_n,
@@ -51,17 +52,17 @@ class SEIR(GenericModel):
 
     def get_moving_infected_people(self):
         """getting number of moving infected people"""
-        people_to_move = round(self._point.N * self._point.move_probability)
 
-        # wyliczyc ile chorych ucieka
-        infected_to_move = round(self._point.all_infected * random.uniform(0.01, 0.05))
+        infected_to_move = round(self._point.all_infected * random.uniform(0.01, 0.3))
 
-        # podzielic na to_neighbours, out_neighbours
         infected_to_neighbours = round(infected_to_move * self._point.neighbours_move_probability)
         infected_out_neighbours = infected_to_move - infected_to_neighbours
 
         # liczenie czy faktycznie ida out_neighbours
-        if random.random() > 0.3:
+        rand = random.random()
+        if rand > 0.5:
             infected_out_neighbours = 0
+        elif rand > 0.1:
+            infected_out_neighbours = round(infected_out_neighbours * random.uniform(0, 0.7))
 
         return infected_to_neighbours, infected_out_neighbours
