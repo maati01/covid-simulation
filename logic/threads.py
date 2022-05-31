@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import pandas as pd
 
+
 class SimulateThread(threading.Thread):
     all_threads_finished_moving = False
 
@@ -51,6 +52,34 @@ class SimulateThread(threading.Thread):
 
         for cord in self._reduced_cords:
             self._points[cord].simulate()
+
+
+class GraphRunnerNewCases(threading.Thread):
+    stop = False
+
+    def kill(self):
+        self._stop.set()
+
+    def animate(self, i):
+        if self.stop:
+            self.ani.event_source.stop()
+
+        data = pd.read_csv('statistics/data.csv')
+        day = data['Day']
+        new_cases = data['New cases']
+
+        plt.cla()
+
+        plt.plot(day, new_cases, label='New cases')
+
+        plt.legend(loc='upper left')
+        plt.tight_layout()
+
+    def run(self):
+        plt.style.use('fivethirtyeight')
+        self.ani = FuncAnimation(plt.gcf(), self.animate, interval=500)
+        plt.tight_layout()
+        plt.show()
 
 
 class GraphRunner(threading.Thread):

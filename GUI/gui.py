@@ -11,8 +11,9 @@ from logic.threads import SimulateThread
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Covid Simulation"
-TEXT_PADDING = 50
-FONT_SIZE = 40
+TEXT_PADDING = 40
+FONT_SIZE = 25
+DAY_FONT_SIZE = 40
 TEXT_WIDTH = 80
 
 
@@ -84,17 +85,20 @@ class GUI(arcade.Window):
         return color_list
 
     def update_text(self):
-        days, susceptible, exposed, infected, recovered = self.statistics.get_statistics()
+        days, susceptible, exposed, infected, recovered, new_cases = self.statistics.get_statistics()
+        shift = self.scale + 1
 
         arcade.draw_text(days, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,
-                         arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH, 'left')
-        arcade.draw_text(susceptible, self.y_size * self.scale, self.x_size * self.scale + TEXT_PADDING,
+                         arcade.color.BLACK, DAY_FONT_SIZE, TEXT_WIDTH, 'left')
+        arcade.draw_text(susceptible, self.y_size * shift, self.x_size * self.scale + TEXT_PADDING,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
-        arcade.draw_text(exposed, self.y_size * self.scale, self.x_size * self.scale,
+        arcade.draw_text(exposed, self.y_size * shift, self.x_size * self.scale,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
-        arcade.draw_text(infected, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING,
+        arcade.draw_text(infected, self.y_size * shift, self.x_size * self.scale - TEXT_PADDING,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
-        arcade.draw_text(recovered, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING * 2,
+        arcade.draw_text(recovered, self.y_size * shift, self.x_size * self.scale - TEXT_PADDING * 2,
+                         arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+        arcade.draw_text(new_cases, self.y_size * shift, self.x_size * self.scale - TEXT_PADDING * 3,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
 
     def simulate(self, delta_time: float):
@@ -122,6 +126,7 @@ class GUI(arcade.Window):
 
         SimulateThread.all_threads_finished_moving = False
         self.statistics.update_day()
+        self.statistics.update_new_cases() #TODO czasem new cases sa z poprzedniego dnia z jakiegos powodu
         self.statistics.update_data_file()
 
     def on_draw(self) -> None:
@@ -151,7 +156,7 @@ class GUI(arcade.Window):
         self.uimanager.draw()
         self.update_text()
 
-        arcade.draw_texture_rectangle(self.x_size * self.scale + 120, self.y_size * self.scale - 400,
+        arcade.draw_texture_rectangle(self.x_size * self.scale + 120, self.y_size * self.scale - 350,
                                       self.color_bar_img.width * 0.8,
                                       self.color_bar_img.height * 0.8, self.color_bar_img, 0)
 

@@ -6,5 +6,5 @@
 
 ## RUN APP
 `python run.py` \
-`python run.py -s small` - version with fewer points in the model
+`python run.py -s small` - version with fewer points in the model \
 `python run.py -m SEIQR` - using different model than SEIR
