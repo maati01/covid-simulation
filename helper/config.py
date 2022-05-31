@@ -13,7 +13,7 @@ PATH_TO_COLOR_BAR = "data/color_bar.jpg"
 
 def model(s: str):
     s = s.upper()
-    models = {'SEIR': SEIR, 'SEIQR': SEIQR}
+    models = {'SEIR': SEIR, 'SEIQR': SEIQR, 'SEIQRD': SEIQRD}
     if s not in models:
         raise argparse.ArgumentTypeError(f"Model `{s}` is not supported. Available ones {models}")
 
@@ -23,7 +23,7 @@ def model(s: str):
 def set_mode():
     parser = argparse.ArgumentParser("Simulation settings")
     parser.add_argument("-s", "--size", help="If you want to reduce the number of points on the map, enter '-s small'")
-    parser.add_argument("-m", "--model", type=model, default=SEIR, help="Model to be used in simulation, ex. SEIR")
+    parser.add_argument("-m", "--model", type=model, default=SEIR, help="Model to be used in simulation, ex. SEIQR")
     args = parser.parse_args()
 
     if args.size == "small":
