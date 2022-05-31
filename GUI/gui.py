@@ -3,8 +3,7 @@ import arcade.gui
 import matplotlib
 import numpy as np
 from matplotlib.colors import ListedColormap
-import csv
-import os
+from statistics.statistics import Statistics
 
 from logic.point import Point
 from logic.threads import SimulateThread
@@ -59,28 +58,13 @@ class GUI(arcade.Window):
 
         self.points = points
         self.all_cords = list(points.keys())
-        self.day = 0
-        self.text = f"Day: {self.day}"
 
-        self.susceptible_cnt = 0
-        self.exposed_cnt = 0
-        self.infected_cnt = 0
-        self.recovered_cnt = 0
-
-        self.susceptible = f"susceptible: {self.susceptible_cnt}"
-        self.exposed = f"exposed: {self.exposed_cnt}"
-        self.infected = f"infected: {self.infected_cnt}"
-        self.recovered = f"recovered: {self.recovered_cnt}"
-
-        self.fieldnames = ["Day", "Susceptible", "Exposed", "Infected", "Recovered"]
-        with open('statistics/data.csv', 'w') as csv_file:
-            csv_writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
-            csv_writer.writeheader()
+        self.statistics = Statistics()
 
         # Set the window's background color
         self.background_color = arcade.color.WHITE
-        # Create a spritelist for batch drawing all the grid sprites
 
+        # Create a spritelist for batch drawing all the grid sprites
         self.grid_sprite_list = arcade.SpriteList()
         self.grid_sprites = []
 
@@ -99,53 +83,19 @@ class GUI(arcade.Window):
 
         return color_list
 
-    def update_day(self):
-        self.day += 1
-        self.text = f"Day: {self.day}"
-
-    def update_info(self):
-        self.susceptible = f"susceptible: {self.susceptible_cnt}"
-        self.exposed = f"exposed: {self.exposed_cnt}"
-        self.infected = f"infected: {self.infected_cnt}"
-        self.recovered = f"recovered: {self.recovered_cnt}"
-
-    def reset_counters(self):
-        self.susceptible_cnt = 0
-        self.exposed_cnt = 0
-        self.infected_cnt = 0
-        self.recovered_cnt = 0
-
-    def update_counters(self, point: Point):
-        self.susceptible_cnt += point.S
-        self.exposed_cnt += point.all_exposed
-        self.infected_cnt += point.all_infected
-        self.recovered_cnt += point.R
-
     def update_text(self):
-        arcade.draw_text(self.text, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,
+        days, susceptible, exposed, infected, recovered = self.statistics.get_statistics()
+
+        arcade.draw_text(days, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH, 'left')
-        arcade.draw_text(self.susceptible, self.y_size * self.scale, self.x_size * self.scale + TEXT_PADDING,
+        arcade.draw_text(susceptible, self.y_size * self.scale, self.x_size * self.scale + TEXT_PADDING,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
-        arcade.draw_text(self.exposed, self.y_size * self.scale, self.x_size * self.scale,
+        arcade.draw_text(exposed, self.y_size * self.scale, self.x_size * self.scale,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
-        arcade.draw_text(self.infected, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING,
+        arcade.draw_text(infected, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
-        arcade.draw_text(self.recovered, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING * 2,
+        arcade.draw_text(recovered, self.y_size * self.scale, self.x_size * self.scale - TEXT_PADDING * 2,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
-
-    def update_data_file(self):
-        with open('statistics/data.csv', 'a') as csv_file:
-            csv_writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
-
-            info = {
-                "Day": self.day,
-                "Susceptible": self.susceptible_cnt,
-                "Exposed": self.exposed_cnt,
-                "Infected": self.infected_cnt,
-                "Recovered": self.recovered_cnt
-            }
-
-            csv_writer.writerow(info)
 
     def simulate(self, delta_time: float):
         if not self.is_running:
@@ -171,9 +121,8 @@ class GUI(arcade.Window):
             thread.join()
 
         SimulateThread.all_threads_finished_moving = False
-        self.update_day()
-        self.update_info()
-        self.update_data_file()
+        self.statistics.update_day()
+        self.statistics.update_data_file()
 
     def on_draw(self) -> None:
         """
@@ -186,7 +135,7 @@ class GUI(arcade.Window):
 
         self.grid_sprite_list.draw()
 
-        self.reset_counters()
+        self.statistics.reset_counters()
 
         for point in self.points.values():
             if point.all_infected > 0:
@@ -195,7 +144,7 @@ class GUI(arcade.Window):
                 self.grid_sprites[point.x][point.y].color = new_color
             elif point.all_infected == 0:
                 self.grid_sprites[point.x][point.y].color = (0, self.map[point.x, point.y], 0)
-            self.update_counters(point)
+            self.statistics.update_statistics(point)
 
         # Batch draw all the sprites
 
