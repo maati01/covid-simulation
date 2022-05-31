@@ -117,10 +117,10 @@ class GUI(arcade.Window):
 
     # TODO z jakiegos powodu musze tutaj mnozyc, bo przy zapisywaniu arraya spowalnia program
     def update_counters(self, point: Point):
-        self.susceptible_cnt += point.S * (self.scale ** 2)
-        self.exposed_cnt += point.all_exposed * (self.scale ** 2)
-        self.infective_cnt += point.all_infected * (self.scale ** 2)
-        self.recovered_cnt += point.R * (self.scale ** 2)
+        self.susceptible_cnt += point.S
+        self.exposed_cnt += point.all_exposed
+        self.infective_cnt += point.all_infected
+        self.recovered_cnt += point.R
 
     def update_text(self):
         arcade.draw_text(self.text, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,

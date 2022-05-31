@@ -35,7 +35,7 @@ def resize_and_save_array(scale: int) -> None:
 
     small_population_array = population_array.reshape(
         [new_row_size, row_size // new_row_size, new_column_size, column_size // new_column_size]).mean(3).mean(1)
-    small_population_array = small_population_array.astype(np.int32)
+    small_population_array = small_population_array.astype(np.int32)*(SCALE**2)
 
     np.save(PATH_TO_SMALL_POPULATION_ARRAY, small_population_array)
 
