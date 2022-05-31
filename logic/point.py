@@ -1,5 +1,6 @@
 class Point:
-    def __init__(self, init_N: int, x: int, y: int, province: str = None, e_range: int = 2, i_range: int = 10):
+    def __init__(self, init_N: int, x: int, y: int, province: str = None, e_range: int = 2, i_range: int = 10,
+                 q_range: int = 10):
         """
         :param init_N: number of people
         :param x: x coord
@@ -17,16 +18,20 @@ class Point:
         self._S = init_N
         self._E = [0 for _ in range(e_range)]
         self._I = [0 for _ in range(i_range)]
+        self._Q = [0 for _ in range(q_range)]
         self._R = 0
         self._neighbours = list()
         self.move_probability = 0.8
         self.neighbours_move_probability = 0.95
         self.arrived_infected = 0
 
-    def move_lists_stats(self, new_e: int, new_i: int):
+    def move_lists_stats(self, new_e: int, new_i: int, new_q: int = None):
         """Method to move people in lists. Just to get they able to change state in the future"""
         self.move_list_stats(self._E, new_e)
         self.move_list_stats(self._I, new_i)
+
+        if new_q:
+            self.move_list_stats(self._Q, new_q)
 
     @staticmethod
     def move_list_stats(list_to_update: list[int], new_in_state: int):
@@ -76,6 +81,14 @@ class Point:
     @property
     def all_infected(self):
         return sum(self._I)
+
+    @property
+    def all_quarantined(self):
+        return sum(self._Q)
+
+    @property
+    def Q(self):
+        return self._Q
 
     @property
     def R(self):
