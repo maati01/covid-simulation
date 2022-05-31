@@ -1,4 +1,8 @@
 import csv
+import os
+
+import pandas as pd
+from matplotlib import pyplot as plt
 
 from logic.point import Point
 
@@ -58,3 +62,26 @@ class Statistics:
         self.exposed_cnt = 0
         self.infected_cnt = 0
         self.recovered_cnt = 0
+
+    def generate_plot(self, idx: int) -> None:
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+        data = pd.read_csv('statistics/data.csv')
+        day = data['Day']
+        new_cases = data['New cases']
+        exposed = data['Exposed']
+        infective = data['Infected']
+        recovered = data['Recovered']
+
+        ax1.cla()
+        ax1.plot(day, exposed, label='Exposed')
+        ax1.plot(day, infective, label='Infected')
+        ax1.plot(day, recovered, label='Recovered')
+        ax1.legend(loc='upper left')
+
+        ax2.cla()
+        ax2.plot(day, new_cases, label='New cases')
+        ax2.legend(loc='upper left')
+
+        if idx != 0:
+            os.remove(f"data/plot/plot{idx - 1}.png")
+        plt.savefig(f"data/plot/plot{idx}.png")

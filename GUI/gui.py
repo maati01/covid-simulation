@@ -1,3 +1,5 @@
+from time import sleep
+
 import arcade
 import arcade.gui
 import matplotlib
@@ -38,7 +40,7 @@ class GUI(arcade.Window):
 
         self.color_bar_list = self._create_color_bar()
 
-        super().__init__(self.y_size * scale + 600, self.x_size * scale + 100,
+        super().__init__(self.y_size * scale + 1000, self.x_size * scale + 100,
                          SCREEN_TITLE)  # chwilowo rozmiary mapki wejsciowej, trzeba przeskalowac
 
         # Creating a UI MANAGER to handle the UI
@@ -60,7 +62,9 @@ class GUI(arcade.Window):
         self.points = points
         self.all_cords = list(points.keys())
 
+        self.day = 0
         self.statistics = Statistics()
+        self.statistics.generate_plot(self.day)
 
         # Set the window's background color
         self.background_color = arcade.color.WHITE
@@ -126,8 +130,11 @@ class GUI(arcade.Window):
 
         SimulateThread.all_threads_finished_moving = False
         self.statistics.update_day()
-        self.statistics.update_new_cases() #TODO czasem new cases sa z poprzedniego dnia z jakiegos powodu
+        self.statistics.update_new_cases()  # TODO czasem new cases sa z poprzedniego dnia z jakiegos powodu
         self.statistics.update_data_file()
+
+        self.day += 1
+        self.statistics.generate_plot(self.day)
 
     def on_draw(self) -> None:
         """
@@ -159,6 +166,11 @@ class GUI(arcade.Window):
         arcade.draw_texture_rectangle(self.x_size * self.scale + 120, self.y_size * self.scale - 350,
                                       self.color_bar_img.width * 0.8,
                                       self.color_bar_img.height * 0.8, self.color_bar_img, 0)
+
+        plot = arcade.load_texture(f"data/plot/plot{self.day}.png")
+        arcade.draw_texture_rectangle(self.x_size * self.scale + 600, self.y_size * self.scale - 400,
+                                      plot.width * 0.8,
+                                      plot.height * 0.8, plot, 0, 255)
 
     def initialize_grid(self) -> None:
         # Create a list of solid-color sprites to represent each grid location
