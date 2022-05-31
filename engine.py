@@ -2,16 +2,16 @@ import arcade
 import numpy as np
 from GUI.gui import GUI
 from logic.point import Point
-from logic.SEIR import SEIR
+from logic.models import GenericModel
 from helper.config import set_mode
 from logic.threads import GraphRunner
 
 
 class Engine:
     def __init__(self):
-        scale, path_to_binary_array, path_to_population_array, path_to_color_abr = set_mode()
+        scale, path_to_binary_array, path_to_population_array, path_to_color_abr, model = set_mode()
 
-        self.points = self._create_matrix_of_points(path_to_population_array)
+        self.points = self._create_matrix_of_points(path_to_population_array, model)
         self.gui = GUI(path_to_binary_array, path_to_color_abr, self.points, scale=scale)
 
         plot_thread = GraphRunner()
@@ -21,14 +21,13 @@ class Engine:
         GraphRunner.stop = True
 
     @staticmethod
-    def _create_matrix_of_points(path: str):
+    def _create_matrix_of_points(path: str, model: GenericModel):
         populations = np.load(path)
-        # n, m = len(populations), len(populations[0])
 
         points = {}
         for i, j in np.argwhere(populations > 0):
             point = Point(populations[i, j], x=i, y=j)
-            point.model = SEIR
+            point.model = model
             points[i, j] = point
 
         for i, j in points.keys():
