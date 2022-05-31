@@ -1,3 +1,5 @@
-arcade
-numpy
-matplotlib
+arcade~=2.6.13
+numpy~=1.22.3
+matplotlib~=3.5.1
+pandas~=1.4.2
+Pillow~=9.1.0

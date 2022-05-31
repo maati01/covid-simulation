@@ -4,7 +4,6 @@ from GUI.gui import GUI
 from logic.point import Point
 from logic.models import GenericModel
 from helper.config import set_mode
-from logic.threads import GraphRunner
 
 
 class Engine:
@@ -14,11 +13,7 @@ class Engine:
         self.points = self._create_matrix_of_points(path_to_population_array, model)
         self.gui = GUI(path_to_binary_array, path_to_color_abr, self.points, scale=scale)
 
-        plot_thread = GraphRunner()
-        plot_thread.daemon = True
-        plot_thread.start()
         arcade.run()
-        GraphRunner.stop = True
 
     @staticmethod
     def _create_matrix_of_points(path: str, model: GenericModel):
