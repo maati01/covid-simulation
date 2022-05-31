@@ -24,6 +24,8 @@ class Statistics:
         self.prev_infected_cnt = 0
 
         self.new_cases = 0
+        if not os.path.exists('data/plot'):
+            os.mkdir('data/plot')
 
     def update_data_file(self) -> None:
         with open('statistics/data.csv', 'a') as csv_file:
