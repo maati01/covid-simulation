@@ -96,7 +96,7 @@ class SEIQR(GenericModel):
             round_func(self.kappa * q_able_to_recover),
         )
 
-        q_from_i_per_stage = [round_func(self.alpha * self._point.I[i]) for i in range(len(self._point.I))]
+        q_from_i_per_stage = [round(self.alpha * self._point.I[i]) for i in range(len(self._point.I))]
 
         self._point.I = self._reduce_stages(self._point.I, q_from_i_per_stage)
 
@@ -106,10 +106,6 @@ class SEIQR(GenericModel):
         self._point.Q[-1] -= kappa_q
         self._point.R += kappa_i + kappa_q
         self._point.move_lists_stats(beta_i_s_div_n, gamma_e, sum(q_from_i_per_stage))
-
-        if beta_i_s_div_n < 0:
-            print(beta_i_s_div_n, gamma_e, kappa_i, kappa_q)
-            print(self._point.I)
 
         self._point.arrived_infected = 0
 

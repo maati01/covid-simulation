@@ -36,16 +36,16 @@ class Point:
         self.move_list_stats(self._E, new_e)
         self.move_list_stats(self._I, new_i)
 
-        if new_q:
+        if new_q is not None:
             self.move_list_stats(self._Q, new_q)
 
-        if new_e2:
+        if new_e2 is not None:
             self.move_list_stats(self._E2, new_e2)
 
-        if new_i2:
+        if new_i2 is not None:
             self.move_list_stats(self._I2, new_i2)
 
-        if new_q2:
+        if new_q2 is not None:
             self.move_list_stats(self._Q2, new_q2)
 
     @staticmethod
