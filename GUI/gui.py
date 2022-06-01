@@ -144,7 +144,6 @@ class GUI(arcade.Window):
 
         SimulateThread.all_threads_finished_moving = False
         self.statistics.update_day()
-        self.statistics.update_new_cases()  # TODO czasem new cases sa z poprzedniego dnia z jakiegos powodu
         self.statistics.update_data_file()
 
         self.day += 1

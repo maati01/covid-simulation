@@ -25,10 +25,8 @@ class Statistics:
         self.quarantine_cnt = 0
         self.deaths = 0
 
-        # Statistics from previous day
-        self.prev_infected_cnt = 0
-
         self.new_cases = 0
+
         if not os.path.exists('data/plot'):
             os.mkdir('data/plot')
 
@@ -55,15 +53,12 @@ class Statistics:
     def update_day(self):
         self.day += 1
 
-    def update_new_cases(self):
-        self.new_cases = max(self.infected_cnt - self.prev_infected_cnt, 0)
-        self.prev_infected_cnt = self.infected_cnt
-
     def update_statistics(self, point: Point) -> None:
         self.susceptible_cnt += point.S
         self.exposed_cnt += point.all_exposed
         self.infected_cnt += point.all_infected
         self.recovered_cnt += point.R
+        self.new_cases += point.I[0]
 
         if self.model == SEIQR: #TODO mozna to zrobic ladniej raczej bo sie powtarzaja ify tu i nizej
             self.quarantine_cnt += point.all_quarantined
@@ -77,6 +72,7 @@ class Statistics:
         self.exposed_cnt = 0
         self.infected_cnt = 0
         self.recovered_cnt = 0
+        self.new_cases = 0
 
         if self.model == SEIQR:
             self.quarantine_cnt = 0
