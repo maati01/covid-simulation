@@ -152,6 +152,7 @@ class GUI(arcade.Window):
         for point in self.points.values():
             if point.all_infected > 0:
                 idx = int((point.all_infected / point.N) * 255)
+                print(point.all_infected, point.N)
                 new_color = tuple([val * 255 for val in self.color_bar_list[idx]])
                 self.grid_sprites[point.x][point.y].color = new_color
             elif point.all_infected == 0:

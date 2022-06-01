@@ -51,7 +51,7 @@ class SEIR(GenericModel):
     def simulate(self):
         """Func to simulate point with SEIR model"""
         i_able_to_recover, e_able_to_infected = self._point.I[-1], self._point.E[-1]
-        n, i = [p + self._point.arrived_infected for p in (self._point.N, sum(self._point.I))]
+        n, i = [p + self._point.arrived_infected for p in (self._point.N, self._point.all_infected)]
         s_div_n = self._point.S / n
 
         round_func = self._get_round_func()
@@ -82,7 +82,7 @@ class SEIQR(GenericModel):
     def simulate(self):
         """Func to simulate point with SEIQR model"""
         i_able_to_recover, e_able_to_infected = self._point.I[-1], self._point.E[-1]
-        n, i = [p + self._point.arrived_infected for p in (self._point.N, sum(self._point.I))]
+        n, i = [p + self._point.arrived_infected for p in (self._point.N, self._point.all_infected)]
         s_div_n, q_able_to_recover = self._point.S / n, self._point.Q[-1]
 
         round_func = self._get_round_func()
@@ -121,7 +121,7 @@ class SEIQRD(GenericModel):
     def simulate(self):
         """Func to simulate point with SEIQRD model"""
         i_able_to_recover, e_able_to_infected = self._point.I[-1], self._point.E[-1]
-        n, i = [p + self._point.arrived_infected for p in (self._point.N, sum(self._point.I))]
+        n, i = [p + self._point.arrived_infected for p in (self._point.N, self._point.all_infected)]
         s_div_n, q_able_to_recover = self._point.S / n, self._point.Q[-1]
 
         round_func = self._get_round_func()
@@ -158,13 +158,14 @@ class SEIQRD(GenericModel):
         self._point.move_lists_stats(new_e, new_i, sum(q_from_i_per_stage))
         self._point.arrived_infected = 0
 
+
 class SEIQRD2(GenericModel):
     def simulate(self):
         """Func to simulate point with SEIQRD2 model"""
         i_able_to_recover, e_able_to_infected = self._point.I[-1], self._point.E[-1]
         i_able_to_recover2, e_able_to_infected2 = self._point.I2[-1], self._point.E2[-1]
 
-        n, i = [p + self._point.arrived_infected for p in (self._point.N, sum(self._point.I))]
+        n, i = [p + self._point.arrived_infected for p in (self._point.N, self._point.all_infected)]
         s_div_n, q_able_to_recover, q_able_to_recover2 = self._point.S / n, self._point.Q[-1], self._point.Q2[-1]
         r_div_n = self._point.R / n
 
@@ -199,8 +200,9 @@ class SEIQRD2(GenericModel):
         self._point.E2[-1] -= gamma_e2
         self._point.I2[-1] -= kappa_i2
         self._point.Q2[-1] -= kappa_q2
-        self._point.R2 += kappa_q2 + kappa_i2
+        self._point.R2 += (kappa_q2 + kappa_i2)
         self._point.D += (sum(d_from_q_per_stage) + sum(d_from_q2_per_stage))
 
-        self._point.move_lists_stats(beta_i_s_div_n, gamma_e, sum(q_from_i_per_stage), beta_i_r_div_n, gamma_e2, sum(q2_from_i2_per_stage))
+        self._point.move_lists_stats(beta_i_s_div_n, gamma_e, sum(q_from_i_per_stage), beta_i_r_div_n, gamma_e2,
+                                     sum(q2_from_i2_per_stage))
         self._point.arrived_infected = 0
