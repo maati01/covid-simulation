@@ -5,6 +5,8 @@ import arcade.gui
 import matplotlib
 import numpy as np
 from matplotlib.colors import ListedColormap
+
+from logic.models import GenericModel, SEIQR, SEIQRD
 from statistics.statistics import Statistics
 
 from logic.point import Point
@@ -27,11 +29,12 @@ class GUI(arcade.Window):
     Main application class.
     """
 
-    def __init__(self, path_to_array: str, path_to_color_bar: str, points: dict[tuple[int, int], Point], threads_num=8,
-                 scale=1):
+    def __init__(self, path_to_array: str, path_to_color_bar: str, points: dict[tuple[int, int], Point],
+                 model: GenericModel, threads_num=8, scale=1):
         """
         Set up the application.
         """
+        self.model = model
 
         self.map = np.load(path_to_array)
         self.x_size = len(self.map)
@@ -63,7 +66,7 @@ class GUI(arcade.Window):
         self.all_cords = list(points.keys())
 
         self.day = 0
-        self.statistics = Statistics()
+        self.statistics = Statistics(model)
         self.statistics.generate_plot(self.day)
 
         # Set the window's background color
@@ -89,7 +92,7 @@ class GUI(arcade.Window):
         return color_list
 
     def update_text(self):
-        days, susceptible, exposed, infected, recovered, new_cases = self.statistics.get_statistics()
+        days, susceptible, exposed, infected, recovered, new_cases, quarantines, deaths = self.statistics.get_statistics()
         shift = self.scale + 1
 
         arcade.draw_text(days, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,
@@ -104,6 +107,17 @@ class GUI(arcade.Window):
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
         arcade.draw_text(new_cases, self.y_size * shift, self.x_size * self.scale - TEXT_PADDING * 3,
                          arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+
+        if self.model == SEIQR:
+            arcade.draw_text(quarantines, self.y_size * (shift + 2.5), self.x_size * self.scale + TEXT_PADDING,
+                             arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+
+        if self.model == SEIQRD:
+            arcade.draw_text(quarantines, self.y_size * (shift + 2.5), self.x_size * self.scale + TEXT_PADDING,
+                             arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+            arcade.draw_text(deaths, self.y_size * (shift + 2.5), self.x_size * self.scale,
+                             arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+
 
     def simulate(self, delta_time: float):
         if not self.is_running:

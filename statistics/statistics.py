@@ -4,21 +4,26 @@ import os
 import pandas as pd
 from matplotlib import pyplot as plt
 
+from logic.models import GenericModel, SEIQR, SEIQRD
 from logic.point import Point
 
 
 class Statistics:
-    def __init__(self):
+    def __init__(self, model: GenericModel):
         self.fieldnames = ["Day", "Susceptible", "Exposed", "Infected", "Recovered", "New cases"]
         with open('statistics/data.csv', 'w') as csv_file:
             csv_writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
             csv_writer.writeheader()
 
+        self.model = model
         self.day = 0
         self.susceptible_cnt = 0
         self.exposed_cnt = 0
         self.infected_cnt = 0
         self.recovered_cnt = 0
+
+        self.quarantine_cnt = 0
+        self.deaths = 0
 
         # Statistics from previous day
         self.prev_infected_cnt = 0
@@ -42,9 +47,10 @@ class Statistics:
 
             csv_writer.writerow(info)
 
-    def get_statistics(self) -> tuple[str, str, str, str, str, str]:
+    def get_statistics(self) -> tuple[str, str, str, str, str, str, str, str]:
         return f"Day: {self.day}", f"susceptible: {self.susceptible_cnt}", f"exposed: {self.exposed_cnt}", \
-               f"infected: {self.infected_cnt}", f"recovered: {self.recovered_cnt}", f"new cases: {self.new_cases}"
+               f"infected: {self.infected_cnt}", f"recovered: {self.recovered_cnt}", f"new cases: {self.new_cases}",\
+               f"quarantines: {self.quarantine_cnt}", f"deaths: {self.deaths}"
 
     def update_day(self):
         self.day += 1
@@ -59,11 +65,25 @@ class Statistics:
         self.infected_cnt += point.all_infected
         self.recovered_cnt += point.R
 
+        if self.model == SEIQR: #TODO mozna to zrobic ladniej raczej bo sie powtarzaja ify tu i nizej
+            self.quarantine_cnt += point.all_quarantined
+
+        if self.model == SEIQRD:
+            self.quarantine_cnt += point.all_quarantined
+            self.deaths += point.D
+
     def reset_counters(self) -> None:
         self.susceptible_cnt = 0
         self.exposed_cnt = 0
         self.infected_cnt = 0
         self.recovered_cnt = 0
+
+        if self.model == SEIQR:
+            self.quarantine_cnt = 0
+
+        if self.model == SEIQRD:
+            self.quarantine_cnt = 0
+            self.deaths = 0
 
     def generate_plot(self, idx: int) -> None:
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
