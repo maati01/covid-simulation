@@ -13,7 +13,7 @@ PATH_TO_COLOR_BAR = "data/color_bar.jpg"
 
 def model(s: str):
     s = s.upper()
-    models = {'SEIR': SEIR, 'SEIQR': SEIQR, 'SEIQRD': SEIQRD}
+    models = {'SEIR': SEIR, 'SEIQR': SEIQR, 'SEIQRD': SEIQRD, 'SEIQRD2': SEIQRD2}
     if s not in models:
         raise argparse.ArgumentTypeError(f"Model `{s}` is not supported. Available ones {models}")
 

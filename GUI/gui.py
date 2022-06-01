@@ -6,7 +6,7 @@ import matplotlib
 import numpy as np
 from matplotlib.colors import ListedColormap
 
-from logic.models import GenericModel, SEIQR, SEIQRD
+from logic.models import *
 from statistics.statistics import Statistics
 
 from logic.point import Point
@@ -112,7 +112,7 @@ class GUI(arcade.Window):
             arcade.draw_text(quarantines, self.y_size * (shift + 2.5), self.x_size * self.scale + TEXT_PADDING,
                              arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
 
-        if self.model == SEIQRD:
+        if self.model == SEIQRD or self.model == SEIQRD2:
             arcade.draw_text(quarantines, self.y_size * (shift + 2.5), self.x_size * self.scale + TEXT_PADDING,
                              arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
             arcade.draw_text(deaths, self.y_size * (shift + 2.5), self.x_size * self.scale,
@@ -144,7 +144,6 @@ class GUI(arcade.Window):
 
         SimulateThread.all_threads_finished_moving = False
         self.statistics.update_day()
-        self.statistics.update_new_cases()  # TODO czasem new cases sa z poprzedniego dnia z jakiegos powodu
         self.statistics.update_data_file()
 
         self.day += 1
@@ -166,6 +165,8 @@ class GUI(arcade.Window):
         for point in self.points.values():
             if point.all_infected > 0:
                 idx = int((point.all_infected / point.N) * 255)
+                # if point.N < 20:
+                #     print(point.all_infected, point.N)
                 new_color = tuple([val * 255 for val in self.color_bar_list[idx]])
                 self.grid_sprites[point.x][point.y].color = new_color
             elif point.all_infected == 0:
