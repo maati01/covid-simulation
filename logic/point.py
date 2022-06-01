@@ -168,3 +168,19 @@ class Point:
     def simulate(self):
         """Simulate next day"""
         self._model.simulate()
+
+    @I.setter
+    def I(self, value):
+        self._I = value
+
+    @Q.setter
+    def Q(self, value):
+        self._Q = value
+
+    @Q2.setter
+    def Q2(self, value):
+        self._Q2 = value
+
+    @I2.setter
+    def I2(self, value):
+        self._I2 = value

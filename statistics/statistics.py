@@ -4,7 +4,7 @@ import os
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from logic.models import GenericModel, SEIQR, SEIQRD
+from logic.models import *
 from logic.point import Point
 
 
@@ -68,7 +68,7 @@ class Statistics:
         if self.model == SEIQR: #TODO mozna to zrobic ladniej raczej bo sie powtarzaja ify tu i nizej
             self.quarantine_cnt += point.all_quarantined
 
-        if self.model == SEIQRD:
+        if self.model == SEIQRD or self.model == SEIQRD2:
             self.quarantine_cnt += point.all_quarantined
             self.deaths += point.D
 
@@ -81,7 +81,7 @@ class Statistics:
         if self.model == SEIQR:
             self.quarantine_cnt = 0
 
-        if self.model == SEIQRD:
+        if self.model == SEIQRD or self.model == SEIQRD2:
             self.quarantine_cnt = 0
             self.deaths = 0
 

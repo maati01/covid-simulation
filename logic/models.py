@@ -2,7 +2,7 @@ from logic.point import Point
 from abc import ABC, abstractmethod
 from math import ceil, floor
 import random
-
+from copy import deepcopy
 
 # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7277829/#:~:text=The%20classical%20SEIR%20model%20can%20be%20described%20by%20a%20series%20of%20ordinary%20differential%20equations%3A
 # http://web.pdx.edu/~gjay/teaching/mth271_2020/html/09_SEIR_model.html
@@ -11,7 +11,7 @@ class GenericModel(ABC):
     gamma = 0.4  # for getting infected
     beta = 0.69  # for getting exposed
     beta2 = 0.05  # for getting exposed second time
-    alpha = 0.02  # for getting quarantined
+    alpha = 0.005  # for getting quarantined
     theta = 0.001  # for getting dead
 
     def __init__(self, point: Point):
@@ -39,8 +39,11 @@ class GenericModel(ABC):
 
     @staticmethod
     def _reduce_stages(list_to_update: list[int], vals: list[int]):
-        for (stage, val) in zip(list_to_update, vals):
-            stage -= val
+        updated_list = list()
+        for (stage, val) in zip(deepcopy(list_to_update), vals):
+            updated_list.append(stage - val)
+
+        return updated_list
 
     @staticmethod
     def _get_round_func():
@@ -93,26 +96,20 @@ class SEIQR(GenericModel):
             round_func(self.kappa * q_able_to_recover),
         )
 
-        delta_s, new_e, delta_e, new_i, delta_i, new_r, delta_q, new_q = (
-            -beta_i_s_div_n,
-            beta_i_s_div_n,
-            -gamma_e,
-            gamma_e,
-            -kappa_i,
-            kappa_i,
-            -kappa_q,
-            kappa_q
-        )
-
         q_from_i_per_stage = [round_func(self.alpha * self._point.I[i]) for i in range(len(self._point.I))]
 
-        self._reduce_stages(self._point.I, q_from_i_per_stage)
-        self._point.S += delta_s
-        self._point.E[-1] += delta_e
-        self._point.I[-1] += delta_i
-        self._point.Q[-1] += delta_q
-        self._point.R += new_r
-        self._point.move_lists_stats(new_e, new_i, sum(q_from_i_per_stage))
+        self._point.I = self._reduce_stages(self._point.I, q_from_i_per_stage)
+
+        self._point.S -= beta_i_s_div_n
+        self._point.E[-1] -= gamma_e
+        self._point.I[-1] -= kappa_i
+        self._point.Q[-1] -= kappa_q
+        self._point.R += kappa_i + kappa_q
+        self._point.move_lists_stats(beta_i_s_div_n, gamma_e, sum(q_from_i_per_stage))
+
+        if beta_i_s_div_n < 0:
+            print(beta_i_s_div_n, gamma_e, kappa_i, kappa_q)
+            print(self._point.I)
 
         self._point.arrived_infected = 0
 
@@ -132,28 +129,28 @@ class SEIQRD(GenericModel):
             round_func(self.kappa * q_able_to_recover),
         )
 
-        delta_s, new_e, delta_e, new_i, delta_i, new_r, delta_q, new_q = (
+        delta_s, new_e, delta_e, new_i, delta_i, new_r, delta_q = (
             -beta_i_s_div_n,
             beta_i_s_div_n,
             -gamma_e,
             gamma_e,
             -kappa_i,
-            kappa_i,
-            -kappa_q,
-            kappa_q
+            kappa_i + kappa_q,
+            -kappa_q
         )
 
         q_from_i_per_stage = [round_func(self.alpha * self._point.I[i]) for i in range(len(self._point.I))]
         d_from_q_per_stage = [round_func(self.theta * self._point.Q[i]) for i in range(len(self._point.Q))]
 
-        self._reduce_stages(self._point.Q, d_from_q_per_stage)
-        self._reduce_stages(self._point.I, q_from_i_per_stage)
+        self._point.Q = self._reduce_stages(self._point.Q, d_from_q_per_stage)
+        self._point.I = self._reduce_stages(self._point.I, q_from_i_per_stage)
         self._point.S += delta_s
         self._point.E[-1] += delta_e
         self._point.I[-1] += delta_i
         self._point.Q[-1] += delta_q
         self._point.R += new_r
         self._point.D += sum(d_from_q_per_stage)
+
 
         self._point.move_lists_stats(new_e, new_i, sum(q_from_i_per_stage))
         self._point.arrived_infected = 0
@@ -175,7 +172,7 @@ class SEIQRD2(GenericModel):
             round_func(self.gamma * e_able_to_infected),
             round_func(self.kappa * i_able_to_recover),
             round_func(self.kappa * q_able_to_recover),
-            round_func(self.beta2 * i * r_div_n),
+            min(floor(self.beta2 * i * r_div_n), self._point.R),
             round_func(self.gamma * e_able_to_infected2),
             round_func(self.kappa * i_able_to_recover2),
             round_func(self.kappa * q_able_to_recover2)
@@ -187,10 +184,10 @@ class SEIQRD2(GenericModel):
         q2_from_i2_per_stage = [round_func(self.alpha * self._point.I2[i]) for i in range(len(self._point.I2))]
         d_from_q2_per_stage = [round_func(self.theta * self._point.Q2[i]) for i in range(len(self._point.Q2))]
 
-        self._reduce_stages(self._point.Q, d_from_q_per_stage)
-        self._reduce_stages(self._point.I, q_from_i_per_stage)
-        self._reduce_stages(self._point.Q2, d_from_q2_per_stage)
-        self._reduce_stages(self._point.I2, q2_from_i2_per_stage)
+        self._point.Q = self._reduce_stages(self._point.Q, d_from_q_per_stage)
+        self._point.I = self._reduce_stages(self._point.I, q_from_i_per_stage)
+        self._point.Q2 = self._reduce_stages(self._point.Q2, d_from_q2_per_stage)
+        self._point.I2 = self._reduce_stages(self._point.I2, q2_from_i2_per_stage)
 
         self._point.S -= beta_i_s_div_n
         self._point.E[-1] -= gamma_e
