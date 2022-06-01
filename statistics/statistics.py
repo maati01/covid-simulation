@@ -10,7 +10,7 @@ from logic.point import Point
 
 class Statistics:
     def __init__(self, model: GenericModel):
-        self.fieldnames = ["Day", "Susceptible", "Exposed", "Infected", "Recovered", "New cases"]
+        self.fieldnames = ["Day", "Susceptible", "Exposed", "Infected", "Recovered", "New cases", "Quarantines", "Deaths"]
         with open('statistics/data.csv', 'w') as csv_file:
             csv_writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
             csv_writer.writeheader()
@@ -40,7 +40,9 @@ class Statistics:
                 "Exposed": self.exposed_cnt,
                 "Infected": self.infected_cnt,
                 "Recovered": self.recovered_cnt,
-                "New cases": self.new_cases
+                "New cases": self.new_cases,
+                "Quarantines": self.quarantine_cnt,
+                "Deaths": self.deaths
             }
 
             csv_writer.writerow(info)
@@ -89,10 +91,15 @@ class Statistics:
         exposed = data['Exposed']
         infective = data['Infected']
         recovered = data['Recovered']
+        quarantines = data['Quarantines']
+        deaths = data['Deaths']
 
         ax1.plot(day, exposed, label='Exposed')
         ax1.plot(day, infective, label='Infected')
         ax1.plot(day, recovered, label='Recovered')
+        ax1.plot(day, quarantines, label='Quarantines')
+        ax1.plot(day, deaths, label='Deaths')
+
         ax1.legend(loc='upper left')
 
         ax2.plot(day, new_cases, label='New cases')
