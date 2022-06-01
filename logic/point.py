@@ -19,20 +19,34 @@ class Point:
         self._E = [0 for _ in range(e_range)]
         self._I = [0 for _ in range(i_range)]
         self._Q = [0 for _ in range(q_range)]
+        self._E2 = [0 for _ in range(e_range)]
+        self._I2 = [0 for _ in range(i_range)]
+        self._Q2 = [0 for _ in range(q_range)]
         self._R = 0
+        self._R2 = 0
         self._D = 0
         self._neighbours = list()
         self.move_probability = 0.8
         self.neighbours_move_probability = 0.95
         self.arrived_infected = 0
 
-    def move_lists_stats(self, new_e: int, new_i: int, new_q: int = None):
+    def move_lists_stats(self, new_e: int, new_i: int, new_q: int = None, new_e2: int = None,
+                         new_i2: int = None, new_q2: int = None):
         """Method to move people in lists. Just to get they able to change state in the future"""
         self.move_list_stats(self._E, new_e)
         self.move_list_stats(self._I, new_i)
 
         if new_q:
             self.move_list_stats(self._Q, new_q)
+
+        if new_e2:
+            self.move_list_stats(self._E2, new_e2)
+
+        if new_i2:
+            self.move_list_stats(self._I2, new_i2)
+
+        if new_q2:
+            self.move_list_stats(self._Q2, new_q2)
 
     @staticmethod
     def move_list_stats(list_to_update: list[int], new_in_state: int):
@@ -72,24 +86,40 @@ class Point:
         self._E = value
 
     @property
+    def E2(self):
+        return self._E2
+
+    @E2.setter
+    def E2(self, value):
+        self._E2 = value
+
+    @property
     def all_exposed(self):
-        return sum(self._E)
+        return sum(self._E) + sum(self._E2)
 
     @property
     def I(self):
         return self._I
 
     @property
+    def I2(self):
+        return self._I2
+
+    @property
     def all_infected(self):
-        return sum(self._I)
+        return sum(self._I) + sum(self._I2)
 
     @property
     def all_quarantined(self):
-        return sum(self._Q)
+        return sum(self._Q) + sum(self._Q2)
 
     @property
     def Q(self):
         return self._Q
+
+    @property
+    def Q2(self):
+        return self._Q2
 
     @property
     def R(self):
@@ -98,6 +128,18 @@ class Point:
     @R.setter
     def R(self, value):
         self._R = value
+
+    @property
+    def R2(self):
+        return self._R2
+
+    @R2.setter
+    def R2(self, value):
+        self._R2 = value
+
+    @property
+    def all_recovered(self):
+        return self._R + self._R2
 
     @property
     def D(self):
