@@ -94,16 +94,15 @@ class Statistics:
         infective = data['Infected']
         recovered = data['Recovered']
 
-        ax1.cla()
         ax1.plot(day, exposed, label='Exposed')
         ax1.plot(day, infective, label='Infected')
         ax1.plot(day, recovered, label='Recovered')
         ax1.legend(loc='upper left')
 
-        ax2.cla()
         ax2.plot(day, new_cases, label='New cases')
         ax2.legend(loc='upper left')
 
         if idx != 0:
             os.remove(f"data/plot/plot{idx - 1}.png")
         plt.savefig(f"data/plot/plot{idx}.png")
+        plt.close('all')
