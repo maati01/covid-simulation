@@ -164,11 +164,11 @@ class SEIQRD2(GenericModel):
             round_func(self.kappa * q_able_to_recover2)
         )
 
-        q_from_i_per_stage = [round_func(self.alpha * self._point.I[i]) for i in range(len(self._point.I))]
-        d_from_q_per_stage = [round_func(self.theta * self._point.Q[i]) for i in range(len(self._point.Q))]
+        q_from_i_per_stage = [round(self.alpha * self._point.I[i]) for i in range(len(self._point.I))]
+        d_from_q_per_stage = [round(self.theta * self._point.Q[i]) for i in range(len(self._point.Q))]
 
-        q2_from_i2_per_stage = [round_func(self.alpha * self._point.I2[i]) for i in range(len(self._point.I2))]
-        d_from_q2_per_stage = [round_func(self.theta * self._point.Q2[i]) for i in range(len(self._point.Q2))]
+        q2_from_i2_per_stage = [round(self.alpha * self._point.I2[i]) for i in range(len(self._point.I2))]
+        d_from_q2_per_stage = [round(self.theta * self._point.Q2[i]) for i in range(len(self._point.Q2))]
 
         self._point.Q = self._reduce_stages(self._point.Q, d_from_q_per_stage)
         self._point.I = self._reduce_stages(self._point.I, q_from_i_per_stage)
