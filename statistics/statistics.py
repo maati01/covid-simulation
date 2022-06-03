@@ -79,7 +79,7 @@ class Statistics:
         self.susceptible_cnt += point.S
         self.exposed_cnt += point.all_exposed()
         self.infected_cnt += point.all_infected()
-        self.recovered_cnt += point.R
+        self.recovered_cnt += point.all_recovered()
         self.new_cases += point.new_cases()
         self.quarantine_cnt += point.all_quarantined()
         self.deaths += point.D
