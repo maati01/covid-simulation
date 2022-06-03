@@ -60,6 +60,7 @@ class Point:
 
     def simulate(self):
         """Simulate next day"""
+        self._model.update_data()
         self._model.simulate()
 
     def new_cases(self):

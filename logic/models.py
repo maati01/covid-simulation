@@ -13,8 +13,13 @@ class GenericModel(ABC):
         self._point = point
 
     @abstractmethod
+    def update_data(self):
+        """Abstract method to update point data"""
+        pass
+
+    @abstractmethod
     def simulate(self):
-        """Abstarct method to simulate point"""
+        """Abstract method to simulate point"""
         pass
 
     def get_moving_infected_people(self):
@@ -75,20 +80,19 @@ class SEIR(GenericModel):
         self.n = 0
         self.i = 0
         self.s_div_n = 0
-        self.round_func = self._get_round_func()
+        self.round_func = None
 
-    def _update_data(self):
+    def update_data(self):
         """Method to update values needed to simulate COVID with SEIR model"""
         self.i_able_to_recover = self._point.I[-1]
         self.e_able_to_infected = self._point.E[-1]
         self.n = self._point.N + self._point.arrived_infected
         self.i = self._point.all_infected() + self._point.arrived_infected
         self.s_div_n = self._point.S / self.n
+        self.round_func = self._get_round_func()
 
     def simulate(self):
         """Method to simulate point with SEIR model"""
-        self._update_data()
-
         beta_i_s_div_n, gamma_e, kappa_i = (
             self.round_func(self.beta * self.i * self.s_div_n),
             self.round_func(self.gamma * self.e_able_to_infected),
@@ -125,9 +129,9 @@ class SEIQR(SEIR):
         super().__init__(point)
         self.q_able_to_recover = 0
 
-    def _update_data(self):
+    def update_data(self):
         """Method to update values need to simulate COVID with SEIQR model"""
-        super()._update_data()
+        super().update_data()
         self.q_able_to_recover = self._point.Q[-1]
 
     def simulate(self):
@@ -163,9 +167,9 @@ class SEIQRD(SEIQR):
     """
     theta = 0.01  # for getting dead
 
-    def _update_data(self):
+    def update_data(self):
         """Method to update values need to simulate COVID with SEIQRD model"""
-        super()._update_data()
+        super().update_data()
 
     def simulate(self):
         """Method to simulate point with SEIQRD model"""
@@ -200,7 +204,7 @@ class SEIQRD2(SEIQRD):
                         \                          /
                          ----------> D <-----------
     """
-    beta2 = 0.05  # for getting exposed second time
+    beta2 = 0.005  # for getting exposed second time
 
     def __init__(self, point: Point):
         super().__init__(point)
@@ -209,9 +213,9 @@ class SEIQRD2(SEIQRD):
         self.q_able_to_recover2 = 0
         self.r_div_n = 0
 
-    def _update_data(self):
+    def update_data(self):
         """Method to update values need to simulate COVID with SEIQRD2 model"""
-        super()._update_data()
+        super().update_data()
         self.i_able_to_recover2 = self._point.I2[-1]
         self.e_able_to_infected2 = self._point.E2[-1]
         self.q_able_to_recover2 = self._point.Q2[-1]
@@ -276,7 +280,7 @@ class SEIQRD2V(SEIQRD2):
                                                  \       /
                                                   ---> QV
     """
-    betaV = 0.01  # for getting exposed being vaccinated
+    betaV = 0.001  # for getting exposed being vaccinated
     omega = 0.001  # for getting vaccinated
 
     def __init__(self, point: Point):
@@ -286,13 +290,13 @@ class SEIQRD2V(SEIQRD2):
         self.q_able_to_recoverV = 0
         self.v_div_n = 0
 
-    def _update_data(self):
+    def update_data(self):
         """Method to update values need to simulate COVID with SEIQRD2V model"""
-        super()._update_data()
-        self.i_able_to_recover2 = self._point.IV[-1]
-        self.e_able_to_infected2 = self._point.EV[-1]
-        self.q_able_to_recover2 = self._point.QV[-1]
-        self.r_div_n = self._point.V / self.n
+        super().update_data()
+        self.i_able_to_recoverV = self._point.IV[-1]
+        self.e_able_to_infectedV = self._point.EV[-1]
+        self.q_able_to_recoverV = self._point.QV[-1]
+        self.v_div_n = self._point.V / self.n
 
     def simulate(self):
         """Method to simulate point with SEIQRD2V model"""
@@ -304,7 +308,7 @@ class SEIQRD2V(SEIQRD2):
         )
 
         omega_r, omega_s = floor(self.omega * self._point.R), floor(self.omega * self._point.S)
-        qV_from_iV_per_stage = [round(self.alpha * stage) for stage in self._point.I2]
+        qV_from_iV_per_stage = [round(self.alpha * stage) for stage in self._point.IV]
 
         super().simulate()
 
@@ -312,8 +316,7 @@ class SEIQRD2V(SEIQRD2):
 
         self._point.S -= omega_s
         self._point.R -= omega_r
-        self._point.V += omega_r + omega_s
-        self._point.R2 -= beta_i_v_div_n
+        self._point.V += (omega_r + omega_s - beta_i_v_div_n)
         self._point.EV[-1] -= gamma_eV
         self._point.IV[-1] -= kappa_iV
         self._point.QV[-1] -= kappa_qV
