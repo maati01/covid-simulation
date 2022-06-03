@@ -8,6 +8,7 @@ class Point:
         :param province: voivodeship (ex. Wielkopolska)
         :param e_range: num of days when people cannot change state and must be exposed
         :param i_range: num of days when people cannot change state and must be infected
+        :param q_range: num of days when people cannot change state and must be on quarantine
         """
         # TODO province should be enum I think
         self.x = x
@@ -36,7 +37,7 @@ class Point:
         self.arrived_infected = 0
 
     def move_lists_stats(self, **kwargs):
-        """Method to move people in lists. Just to get they able to change state in the future"""
+        """Method to move people into next stages just to enable changing states"""
         symbol_by_atr = {'E': self._E, 'I': self._I, 'Q': self._Q, 'E2': self._E2, 'I2': self._I2, 'Q2': self._Q2,
                          'EV': self._EV, 'IV': self._IV, 'QV': self._QV}
 
@@ -48,8 +49,8 @@ class Point:
     def move_list_stats(list_to_update: list[int], new_in_state: int):
         """
         Method to move people in one list
-        :param list_to_update: either self._E or self._I
-        :param new_in_state: people who just changed state
+        :param list_to_update: state list with stages (ex. self._I)
+        :param new_in_state: number of people joining this state
         """
         list_to_update[-1] += list_to_update[-2]
         for i in range(len(list_to_update) - 3, -1, -1):
@@ -62,18 +63,23 @@ class Point:
         self._model.simulate()
 
     def new_cases(self):
+        """Num of new cases getter"""
         return self._E[0] + self._E2[0] + self._EV[0]
 
     def all_exposed(self):
+        """Num of exposed people getter"""
         return sum(self._E) + sum(self._E2) + sum(self._EV)
 
     def all_infected(self):
+        """Num of infected people getter"""
         return sum(self._I) + sum(self._I2) + sum(self._IV)
 
     def all_quarantined(self):
+        """Num of quarantined people getter"""
         return sum(self._Q) + sum(self._Q2) + sum(self._QV)
 
     def all_recovered(self):
+        """Num of recovered people getter"""
         return self._R + self._R2 + self._RV
 
     @property
