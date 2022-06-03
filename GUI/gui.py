@@ -92,7 +92,7 @@ class GUI(arcade.Window):
         return color_list
 
     def update_text(self):
-        days, susceptible, exposed, infected, recovered, new_cases, quarantines, deaths = self.statistics.get_statistics()
+        days, susceptible, exposed, infected, recovered, new_cases, quarantines, deaths, vaccinated = self.statistics.get_statistics()
         shift = self.scale + 1
 
         arcade.draw_text(days, TEXT_PADDING, self.x_size * self.scale + TEXT_PADDING,
@@ -116,6 +116,14 @@ class GUI(arcade.Window):
             arcade.draw_text(quarantines, self.y_size * (shift + 2.5), self.x_size * self.scale + TEXT_PADDING,
                              arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
             arcade.draw_text(deaths, self.y_size * (shift + 2.5), self.x_size * self.scale,
+                             arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+
+        if self.model == SEIQRD2V:
+            arcade.draw_text(quarantines, self.y_size * (shift + 2.5), self.x_size * self.scale + TEXT_PADDING,
+                             arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+            arcade.draw_text(deaths, self.y_size * (shift + 2.5), self.x_size * self.scale,
+                             arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+            arcade.draw_text(vaccinated, self.y_size * (shift + 2.5), self.x_size * self.scale - TEXT_PADDING,
                              arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
 
 
@@ -163,13 +171,13 @@ class GUI(arcade.Window):
         self.statistics.reset_counters()
 
         for point in self.points.values():
-            if point.all_infected > 0:
-                idx = int((point.all_infected / point.N) * 255)
+            if point.all_infected() > 0:
+                idx = int((point.all_infected() / point.N) * 255)
                 # if point.N < 20:
                 #     print(point.all_infected, point.N)
                 new_color = tuple([val * 255 for val in self.color_bar_list[idx]])
                 self.grid_sprites[point.x][point.y].color = new_color
-            elif point.all_infected == 0:
+            elif point.all_infected() == 0:
                 self.grid_sprites[point.x][point.y].color = (0, self.map[point.x, point.y], 0)
             self.statistics.update_statistics(point)
 
