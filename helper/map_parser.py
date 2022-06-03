@@ -1,5 +1,5 @@
-import numpy as np
 from PIL import Image
+import numpy as np
 import json
 
 MAX_POPULATION = 4000
@@ -17,9 +17,7 @@ SCALE = 4
 
 
 def resize_and_save_array(scale: int) -> None:
-    """
-    Converts the array to a smaller size and save to file.
-    """
+    """Converts the array to a smaller size and save to file."""
     binary_array = np.load(PATH_TO_BIG_BINARY_ARRAY)
     population_array = np.load(PATH_TO_BIG_POPULATION_ARRAY)
 
@@ -41,9 +39,7 @@ def resize_and_save_array(scale: int) -> None:
 
 
 def convert_img_to_population_map(path: str, value_to_population: dict[tuple[int, int]: int]) -> None:
-    """
-    Converts image to population map and save to file.
-    """
+    """Converts image to population map and save to file."""
 
     img = Image.open(path)
     img = img.convert("L")
@@ -52,9 +48,8 @@ def convert_img_to_population_map(path: str, value_to_population: dict[tuple[int
     np.save(PATH_TO_BIG_BINARY_ARRAY, img)
 
     row_size, column_size = img.shape
-
-    for row in range(0, row_size):
-        for column in range(0, column_size):
+    for row in range(row_size):
+        for column in range(column_size):
             img[row, column] = value_to_population[img[row, column]]
 
     np.save(PATH_TO_BIG_POPULATION_ARRAY, img)

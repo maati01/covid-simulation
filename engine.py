@@ -1,22 +1,24 @@
-import arcade
-import numpy as np
 from GUI.gui import GUI
 from logic.point import Point
 from logic.models import GenericModel
 from helper.config import set_mode
+import numpy as np
+import arcade
 
 
 class Engine:
+    """Class to prepare and run simulation"""
     def __init__(self):
         scale, path_to_binary_array, path_to_population_array, path_to_color_abr, model = set_mode()
 
         self.points = self._create_matrix_of_points(path_to_population_array, model)
-        self.gui = GUI(path_to_binary_array, path_to_color_abr, self.points, model, scale=scale)
+        self.gui = GUI(path_to_binary_array, path_to_color_abr, self.points, model(None), scale=scale)
 
         arcade.run()
 
     @staticmethod
     def _create_matrix_of_points(path: str, model: GenericModel):
+        """Method creating 2D list of Points"""
         populations = np.load(path)
 
         points = {}
