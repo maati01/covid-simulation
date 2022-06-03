@@ -3,12 +3,10 @@ import threading
 from logic.point import Point
 from random import choices
 from collections import Counter
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-import pandas as pd
 
 
 class SimulateThread(threading.Thread):
+    """Thread class to simulate given part of Points"""
     all_threads_finished_moving = False
 
     def __init__(self, points: dict[tuple[int, int], Point], all_cords: list[tuple[int, int]],
@@ -24,6 +22,7 @@ class SimulateThread(threading.Thread):
         return self._finished_moving
 
     def move_to_neighbours(self, point: Point, infected_to_neighbours: int):
+        """Method to move people to the neighbour points"""
         neighbours_cords = [(p.x, p.y) for p in point.neighbours]
         random.shuffle(neighbours_cords)
         for cords in neighbours_cords[:-1]:
@@ -33,12 +32,14 @@ class SimulateThread(threading.Thread):
         self._points[neighbours_cords[-1]].arrived_infected += infected_to_neighbours
 
     def move_out_neighbours(self, infected_out_neighbours: int):
+        """Method to move people to the randoms points"""
         moving_positions_out = choices(self._all_cords, k=infected_out_neighbours)
         counter = Counter(moving_positions_out)
         for moving_cord in counter.keys():
             self._points[moving_cord].arrived_infected += counter[moving_cord]
 
     def run(self):
+        """Method representing the thread's activity"""
         for cord in self._reduced_cords:
             point = self._points[cord]
             infected_to_neighbours, infected_out_neighbours = point.model.get_moving_infected_people()

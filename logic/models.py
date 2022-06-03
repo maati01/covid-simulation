@@ -9,7 +9,6 @@ import random
 class GenericModel(ABC):
     """Abstract class for COVID simulation models"""
 
-    # TODO THINK ABOUT UPDATING VACCINATION PROBABILITY DURING SIMULATION
     def __init__(self, point: Point):
         self._point = point
 
@@ -221,7 +220,7 @@ class SEIQRD2(SEIQRD):
     def simulate(self):
         """Method to simulate point with SEIQRD2 model"""
         beta_i_r_div_n, gamma_e2, kappa_i2, kappa_q2 = (
-            min(floor(self.beta2 * self.i * self.r_div_n), self._point.R),
+            min(self.round_func(self.beta2 * self.i * self.r_div_n), self._point.R),
             self.round_func(self.gamma * self.e_able_to_infected2),
             self.round_func(self.kappa * self.i_able_to_recover2),
             self.round_func(self.kappa * self.q_able_to_recover2)
@@ -298,7 +297,7 @@ class SEIQRD2V(SEIQRD2):
     def simulate(self):
         """Method to simulate point with SEIQRD2V model"""
         beta_i_v_div_n, gamma_eV, kappa_iV, kappa_qV = (
-            floor(self.betaV * self.i * self.v_div_n),
+            min(self.round_func(self.betaV * self.i * self.v_div_n), self._point.V),
             self.round_func(self.gamma * self.e_able_to_infectedV),
             self.round_func(self.kappa * self.i_able_to_recoverV),
             self.round_func(self.kappa * self.q_able_to_recoverV)

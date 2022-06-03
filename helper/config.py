@@ -1,5 +1,5 @@
+from logic.models import SEIR, SEIQR, SEIQRD, SEIQRD2, SEIQRD2V
 import argparse
-from logic.models import *
 
 PATH_TO_BIG_POPULATION_ARRAY = "data/big_population_array.npy"
 PATH_TO_SMALL_POPULATION_ARRAY = "data/small_population_array.npy"
@@ -12,6 +12,7 @@ PATH_TO_COLOR_BAR = "data/color_bar.jpg"
 
 
 def model(s: str):
+    """Function to validate model argument"""
     s = s.upper()
     models = {'SEIR': SEIR, 'SEIQR': SEIQR, 'SEIQRD': SEIQRD, 'SEIQRD2': SEIQRD2, 'SEIQRD2V': SEIQRD2V}
     if s not in models:
