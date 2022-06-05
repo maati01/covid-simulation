@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from matplotlib import pyplot as plt
 from logic.models import GenericModel
 from logic.point import Point
-import pandas as pd
 import csv
 import os
 import re
@@ -19,14 +18,13 @@ class Statistics(ABC):
         self.model = model
         self.day = 0
         self.fieldnames = ["Day"]
-        self.info = {"Day": self.day}
-        self.stats_representations = {
-            "day": f"Day: {self.day}"
-        }
 
     def update_day(self):
         """Method updating day counter"""
         self.day += 1
+
+    def get_attributes_array(self):
+        return [self.day]
 
     def save_field_names(self) -> None:
         with open('statistics/data.csv', 'w') as csv_file:
@@ -59,76 +57,22 @@ class Statistics(ABC):
 
     def update_data_file(self) -> None:
         """Method to add new stats to csv data file"""
+        info = dict(zip(self.fieldnames, self.get_attributes_array()))
         with open(DATA_CSV_PATH, 'a') as csv_file:
             csv_writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
-            csv_writer.writerow(self.info)
+            csv_writer.writerow(info)
 
     @property
     def current_stats_representations(self) -> dict[str, str]:
-        return self.stats_representations
-
-
-class StatisticsSEIR(Statistics):
-    def __init__(self, model: GenericModel):
-        super(StatisticsSEIR, self).__init__(model)
-        self.susceptible_cnt = 0
-        self.exposed_cnt = 0
-        self.infected_cnt = 0
-        self.recovered_cnt = 0
-        self.new_cases = 0
-        self.fieldnames += ["Susceptible", "Exposed", "Infected", "Recovered", "New cases"]
-        self.info.update({"Susceptible": self.susceptible_cnt,
-                          "Exposed": self.exposed_cnt,
-                          "Infected": self.infected_cnt,
-                          "Recovered": self.recovered_cnt,
-                          "New cases": self.new_cases})
-        self.current_stats_representations.update({"susceptible": f"susceptible: {self.susceptible_cnt}",
-                                                   "exposed": f"exposed: {self.exposed_cnt}",
-                                                   "infected": f"infected: {self.infected_cnt}",
-                                                   "recovered": f"recovered: {self.recovered_cnt}",
-                                                   "new_cases": f"new cases: {self.new_cases}"})
-        self.save_field_names()
-
-    def update_statistics(self, point: Point) -> None:
-        """Method updating statistics by adding point's values"""
-        self.susceptible_cnt += point.S
-        self.exposed_cnt += point.all_exposed()
-        self.infected_cnt += point.all_infected()
-        self.recovered_cnt += point.all_recovered()
-        self.new_cases += point.new_cases()
-
-    def reset_statistics(self) -> None:
-        """Method setting statistic to 0"""
-        self.susceptible_cnt = 0
-        self.exposed_cnt = 0
-        self.infected_cnt = 0
-        self.recovered_cnt = 0
-        self.new_cases = 0
-
-    def generate_plot(self, idx: int) -> None:
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
-        data = pd.read_csv('statistics/data.csv')
-        day = data['Day']
-        new_cases = data['New cases']
-        exposed = data['Exposed']
-        infective = data['Infected']
-        recovered = data['Recovered']
-
-        ax1.plot(day, exposed, label='Exposed')
-        ax1.plot(day, infective, label='Infected')
-        ax1.plot(day, recovered, label='Recovered')
-
-        ax1.legend(loc='upper left')
-
-        ax2.plot(day, new_cases, label='New cases')
-        ax2.legend(loc='upper left')
-        self.save_plot(idx)
+        """comment"""
+        return {}
 
 
 # class StatisticsSEIQRD2V:
 #     """Class to handle simulation statistics"""
 #
 #     def __init__(self, model: GenericModel):
+#
 #         self.model = model
 #         self.day = 0
 #         self.susceptible_cnt = 0
@@ -141,6 +85,18 @@ class StatisticsSEIR(Statistics):
 #         self.new_cases = 0
 #         self.fieldnames = ["Day", "Susceptible", "Exposed", "Infected", "Recovered", "New cases", "Quarantined",
 #                            "Deaths", "Vaccinated"]
+#
+#         self.info = {
+#                 "Day": self.day,
+#                 "Susceptible": self.susceptible_cnt,
+#                 "Exposed": self.exposed_cnt,
+#                 "Infected": self.infected_cnt,
+#                 "Recovered": self.recovered_cnt,
+#                 "New cases": self.new_cases,
+#                 "Quarantined": self.quarantine_cnt,
+#                 "Deaths": self.deaths,
+#                 "Vaccinated": self.vaccinated_cnt
+#             }
 #
 #         self.save_field_names()
 #
@@ -160,19 +116,9 @@ class StatisticsSEIR(Statistics):
 #         with open(DATA_CSV_PATH, 'a') as csv_file:
 #             csv_writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
 #
-#             info = {
-#                 "Day": self.day,
-#                 "Susceptible": self.susceptible_cnt,
-#                 "Exposed": self.exposed_cnt,
-#                 "Infected": self.infected_cnt,
-#                 "Recovered": self.recovered_cnt,
-#                 "New cases": self.new_cases,
-#                 "Quarantined": self.quarantine_cnt,
-#                 "Deaths": self.deaths,
-#                 "Vaccinated": self.vaccinated_cnt
-#             }
 #
-#             csv_writer.writerow(info)
+#
+#             csv_writer.writerow(self.info)
 #
 #     @property
 #     def current_stats_representations(self) -> dict[str, str]:
