@@ -1,5 +1,5 @@
 from logic.models import SEIR, SEIQR, SEIQRD, SEIQRD2V
-from statistics.statistics import Statistics
+from statistics.statistics import Statistics, StatisticsSEIR
 from matplotlib.colors import ListedColormap
 from logic.point import Point
 from logic.threads import SimulateThread
@@ -24,6 +24,7 @@ class GUI(arcade.Window):
     def __init__(self, path_to_array: str, path_to_color_bar: str, points: dict[tuple[int, int], Point],
                  model: SEIR, threads_num=8, scale=1):
         """Set up the application."""
+        statistics = {SEIR: StatisticsSEIR}
         self.map = np.load(path_to_array)
         self.x_size = len(self.map)
         self.y_size = len(self.map[0])
@@ -54,7 +55,7 @@ class GUI(arcade.Window):
         self.all_cords = list(points.keys())
 
         self.day = 0
-        self.statistics = Statistics(model)
+        self.statistics = statistics[model.__class__](model)
         self.statistics.generate_plot(self.day)
 
         # Set the window's background color
