@@ -51,7 +51,6 @@ class StatisticsSEIR(Statistics):
         ax1.plot(day, recovered, label='Recovered')
 
         ax1.legend(loc='upper left')
-
         ax2.plot(day, new_cases, label='New cases')
         ax2.legend(loc='upper left')
 
@@ -60,11 +59,11 @@ class StatisticsSEIR(Statistics):
     @property
     def current_stats_representations(self) -> dict[str, str]:
         stats_representations = {
-            "day": f"Day: {self.day}",
             "susceptible": f"susceptible: {self.susceptible_cnt}",
             "exposed": f"exposed: {self.exposed_cnt}",
             "infected": f"infected: {self.infected_cnt}",
             "recovered": f"recovered: {self.recovered_cnt}",
             "new_cases": f"new cases: {self.new_cases}"}
+        stats_representations.update(super().current_stats_representations)
 
         return stats_representations

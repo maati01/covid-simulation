@@ -29,19 +29,10 @@ class StatisticsSEIQRD2V(StatisticsSEIQRD2):
 
     @property
     def current_stats_representations(self) -> dict[str, str]:
-        stats_representations = {
-            "day": f"Day: {self.day}",
-            "susceptible": f"susceptible: {self.susceptible_cnt}",
-            "exposed": f"exposed: {self.exposed_cnt}",
-            "infected": f"infected: {self.infected_cnt}",
-            "recovered": f"recovered: {self.recovered_cnt}",
-            "new_cases": f"new cases: {self.new_cases}",
-            "quarantined": f"quarantined: {self.quarantine_cnt}",
-            "deaths": f"deaths: {self.deaths}",
-            "recovered_second_time": f"recovered 2: {self.recovered_second_time}",
-            "vaccinated": f"vaccinated: {self.vaccinated_cnt}",
-            "recovered_v": f"recovered v: {self.recovered_and_vaccinated}"
-        }
+        stats_representations = {"vaccinated": f"vaccinated: {self.vaccinated_cnt}",
+                                 "recovered_v": f"recovered v: {self.recovered_and_vaccinated}"}
+        stats_representations.update(super().current_stats_representations)
+
         return stats_representations
 
     def generate_plot(self, idx: int) -> None:

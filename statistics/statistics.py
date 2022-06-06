@@ -64,4 +64,6 @@ class Statistics(ABC):
 
     @property
     def current_stats_representations(self) -> dict[str, str]:
-        return {}
+        stats_representations = {
+            "day": f"Day: {self.day}"}
+        return stats_representations
