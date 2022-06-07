@@ -1,6 +1,4 @@
 from statistics.statistics_seir import StatisticsSEIR
-import pandas as pd
-from matplotlib import pyplot as plt
 
 from logic.models import GenericModel
 from logic.point import Point
@@ -31,25 +29,5 @@ class StatisticsSEIQR(StatisticsSEIR):
 
         return stats_representations
 
-    def generate_plot(self, idx: int) -> None:
-        """Method generating new statistics plot and removing old one"""
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
-        data = pd.read_csv('statistics/data.csv')
-        day = data['Day']
-        new_cases = data['New cases']
-        exposed = data['Exposed']
-        infective = data['Infected']
-        recovered = data['Recovered']
-        quarantined = data['Quarantined']
-
-        ax1.plot(day, exposed, label='Exposed')
-        ax1.plot(day, infective, label='Infected')
-        ax1.plot(day, recovered, label='Recovered')
-        ax1.plot(day, quarantined, label='Quarantined')
-
-        ax1.legend(loc='upper left')
-
-        ax2.plot(day, new_cases, label='New cases')
-        ax2.legend(loc='upper left')
-
-        self.save_plot(idx)
+    def generate_plot(self, idx: int, *args) -> None:
+        super().generate_plot(idx, *args, 'Quarantined')
