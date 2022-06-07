@@ -281,7 +281,7 @@ class SEIQRD2V(SEIQRD2):
                                                   ---> QV
     """
     betaV = 0.001  # for getting exposed being vaccinated
-    omega = 0.001  # for getting vaccinated
+    omega = 0  # for getting vaccinated
 
     def __init__(self, point: Point):
         super().__init__(point)

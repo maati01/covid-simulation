@@ -1,6 +1,7 @@
 # covid-simulation
 
 ## FIRST RUN
+`pip install -r requirements.txt ` \
 `python helper/map_parser.py` \
 `python helper/color_bar_generator.py`
 

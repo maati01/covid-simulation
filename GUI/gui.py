@@ -1,4 +1,4 @@
-from logic.models import SEIR, SEIQR, SEIQRD, SEIQRD2V
+from logic.models import SEIR, SEIQR, SEIQRD, SEIQRD2V, SEIQRD2
 from statistics.statistics import Statistics
 from matplotlib.colors import ListedColormap
 from logic.point import Point
@@ -7,6 +7,12 @@ import numpy as np
 import arcade
 import arcade.gui
 import matplotlib
+
+from statistics.statistics_seiqr import StatisticsSEIQR
+from statistics.statistics_seiqrd2 import StatisticsSEIQRD2
+from statistics.statistics_seiqrd2v import StatisticsSEIQRD2V
+from statistics.statistics_seir import StatisticsSEIR
+from statistics.statistics_seqird import StatisticsSEIQRD
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -24,6 +30,8 @@ class GUI(arcade.Window):
     def __init__(self, path_to_array: str, path_to_color_bar: str, points: dict[tuple[int, int], Point],
                  model: SEIR, threads_num=8, scale=1):
         """Set up the application."""
+        statistics = {SEIR: StatisticsSEIR, SEIQR: StatisticsSEIQR, SEIQRD: StatisticsSEIQRD,
+                      SEIQRD2: StatisticsSEIQRD2, SEIQRD2V: StatisticsSEIQRD2V}
         self.map = np.load(path_to_array)
         self.x_size = len(self.map)
         self.y_size = len(self.map[0])
@@ -54,7 +62,7 @@ class GUI(arcade.Window):
         self.all_cords = list(points.keys())
 
         self.day = 0
-        self.statistics = Statistics(model)
+        self.statistics = statistics[model.__class__](model)
         self.statistics.generate_plot(self.day)
 
         # Set the window's background color
@@ -106,8 +114,17 @@ class GUI(arcade.Window):
             arcade.draw_text(stats['deaths'], self.y_size * (shift + 2.5), self.x_size * self.scale,
                              arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
 
+        if isinstance(self.model, SEIQRD2):
+            arcade.draw_text(stats['recovered_second_time'], self.y_size * (shift + 2.5),
+                             self.x_size * self.scale - TEXT_PADDING,
+                             arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+
         if isinstance(self.model, SEIQRD2V):
-            arcade.draw_text(stats['vaccinated'], self.y_size * (shift + 2.5), self.x_size * self.scale - TEXT_PADDING,
+            arcade.draw_text(stats['vaccinated'], self.y_size * (shift + 2.5),
+                             self.x_size * self.scale - 2 * TEXT_PADDING,
+                             arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
+            arcade.draw_text(stats['recovered_v'], self.y_size * (shift + 2.5),
+                             self.x_size * self.scale - 3 * TEXT_PADDING,
                              arcade.color.BLACK, FONT_SIZE, TEXT_WIDTH)
 
     def simulate(self, delta_time: float):
@@ -140,6 +157,15 @@ class GUI(arcade.Window):
 
         self.day += 1
         self.statistics.generate_plot(self.day)
+
+        #TODO mozna to lepiej zrobic
+        if isinstance(self.model, SEIQRD2V):
+            SEIQRD2V.omega = (self.statistics.infected_cnt+self.statistics.deaths*100 + self.statistics.new_cases)*0.00000001
+            if self.statistics.vaccinated_cnt > self.statistics.susceptible_cnt:
+                SEIQRD2V.omega *= 0.5
+            if self.statistics.vaccinated_cnt > 20000000:
+                SEIQRD2V.omega *= 0.1
+
 
     def on_draw(self) -> None:
         """Render the screen."""
