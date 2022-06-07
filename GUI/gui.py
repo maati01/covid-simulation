@@ -158,6 +158,15 @@ class GUI(arcade.Window):
         self.day += 1
         self.statistics.generate_plot(self.day)
 
+        #TODO mozna to lepiej zrobic
+        if isinstance(self.model, SEIQRD2V):
+            SEIQRD2V.omega = (self.statistics.infected_cnt+self.statistics.deaths*100 + self.statistics.new_cases)*0.00000001
+            if self.statistics.vaccinated_cnt > self.statistics.susceptible_cnt:
+                SEIQRD2V.omega *= 0.5
+            if self.statistics.vaccinated_cnt > 20000000:
+                SEIQRD2V.omega *= 0.1
+
+
     def on_draw(self) -> None:
         """Render the screen."""
         arcade.start_render()
