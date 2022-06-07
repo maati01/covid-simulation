@@ -27,6 +27,3 @@ class StatisticsSEIQRD2(StatisticsSEIQRD):
         stats_representations.update(super().current_stats_representations)
 
         return stats_representations
-
-    def generate_plot(self, idx: int, *args) -> None:
-        super().generate_plot(idx, *args, 'Recovered 2')

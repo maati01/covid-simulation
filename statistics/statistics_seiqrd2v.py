@@ -20,7 +20,7 @@ class StatisticsSEIQRD2V(StatisticsSEIQRD2):
     def update_statistics(self, point: Point) -> None:
         super().update_statistics(point)
         self.recovered_and_vaccinated += point.RV
-        self.vaccinated_cnt += point.V
+        self.vaccinated_cnt += point.V + sum(point.EV) + sum(point.IV) + point.RV
 
     def get_attributes_array(self):
         return super().get_attributes_array() + [self.vaccinated_cnt, self.recovered_and_vaccinated]
@@ -34,4 +34,4 @@ class StatisticsSEIQRD2V(StatisticsSEIQRD2):
         return stats_representations
 
     def generate_plot(self, idx: int, *args) -> None:
-        super().generate_plot(idx, *args, 'Vaccinated', 'Recovered V')
+        super().generate_plot(idx, *args, 'Vaccinated')

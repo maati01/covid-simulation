@@ -40,7 +40,9 @@ class Statistics(ABC):
 
     def generate_plot(self, idx: int, *args) -> None:
         """Method generating new statistics plot and removing old one"""
-        statistics_name = ['Exposed', 'Infected', 'Recovered', 'Quarantined', 'Deaths', 'Recovered 2', 'Vaccinated', 'Recovered V']
+
+        statistics_name = ['Exposed', 'Infected', 'Recovered', 'Quarantined', 'Deaths', 'Recovered 2', 'Vaccinated',
+                           'Recovered V']
 
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
         data = pd.read_csv('statistics/data.csv')

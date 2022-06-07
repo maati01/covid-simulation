@@ -23,7 +23,7 @@ class StatisticsSEIR(Statistics):
         self.susceptible_cnt += point.S
         self.exposed_cnt += point.all_exposed()
         self.infected_cnt += point.all_infected()
-        self.recovered_cnt += point.all_recovered()
+        self.recovered_cnt += point.R
         self.new_cases += point.new_cases()
 
     def reset_statistics(self) -> None:
