@@ -1,4 +1,5 @@
 # covid-simulation
+[Documentation](https://github.com/maati01/covid-simulation/blob/master/Koronawirus.pdf) written in polish
 
 ## FIRST RUN
 `pip install -r requirements.txt ` \
